@@ -1,22 +1,20 @@
 // ─────────────────────────────────────────────────────────────────────────
-// Proveedor de datos: Yahoo Finance (endpoint público v8/chart, sin API key).
-// Diseñado como módulo "pluggable": para cambiar de proveedor basta con
-// implementar la misma firma `fetchQuote` y reexportarla en lib/providers.
+// Proveedor de datos: Yahoo Finance (endpoints públicos, sin API key).
+// Módulo pluggable: para cambiar de proveedor implementar la misma firma
+// y reexportarla en lib/providers.
 //
 // Robustez para producción (Vercel/datacenter IPs):
-//  - Falla sobre múltiples hosts de Yahoo (query1 → query2): Yahoo balancea y
-//    a veces bloquea/limita un rango de IPs; rotar host recupera la respuesta.
-//  - Reintento con backoff en 429/5xx (rate-limit transitorio).
-//  - Headers de navegador para reducir el bloqueo a clientes automatizados.
+//  - Falla sobre múltiples hosts (query1 → query2).
+//  - Reintento con backoff en 429/5xx.
+//  - Headers de navegador para reducir bloqueo.
 // ─────────────────────────────────────────────────────────────────────────
-import type { Quote, SeriesPoint } from "@/lib/types";
+import type { Quote, SeriesPoint, NewsArticle } from "@/lib/types";
 
 const YF_HOSTS = [
   "https://query1.finance.yahoo.com",
   "https://query2.finance.yahoo.com",
 ];
 
-// Nombres legibles del universo de la plataforma.
 export const ASSET_NAMES: Record<string, string> = {
   NVDA: "NVIDIA Corporation",
   MSFT: "Microsoft Corporation",
@@ -40,53 +38,47 @@ const BROWSER_HEADERS = {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/**
- * Descarga el JSON del chart de Yahoo intentando varios hosts y reintentando
- * ante rate-limit. Lanza si todos los intentos fallan.
- */
-async function fetchChartJson(
-  symbol: string,
-  range: string,
-  interval: string
+async function fetchYF(
+  path: string,
+  revalidate = 30
 ): Promise<any> {
-  const path =
-    `/v8/finance/chart/${encodeURIComponent(symbol)}` +
-    `?range=${range}&interval=${interval}&includePrePost=false`;
-
   let lastErr: unknown = null;
   for (const host of YF_HOSTS) {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const res = await fetch(host + path, {
           headers: BROWSER_HEADERS,
-          // Cache de borde: evita golpear Yahoo en cada request (anti rate-limit).
-          next: { revalidate: 30 },
+          next: { revalidate },
         });
         if (res.ok) return await res.json();
-        // 429 / 5xx → reintentar (otro host o tras backoff); 4xx duros → cortar.
         if (res.status === 429 || res.status >= 500) {
           lastErr = new Error(`Yahoo HTTP ${res.status} (${host})`);
-          await sleep(250 * (attempt + 1));
+          await sleep(300 * (attempt + 1));
           continue;
         }
         lastErr = new Error(`Yahoo HTTP ${res.status} (${host})`);
-        break; // 401/403/404: cambiar de host, no insistir en este
+        break;
       } catch (e) {
         lastErr = e;
         await sleep(200);
       }
     }
   }
-  throw lastErr ?? new Error(`Yahoo: sin respuesta para ${symbol}`);
+  throw lastErr ?? new Error(`Yahoo: sin respuesta`);
 }
+
+// ── Chart (precios históricos e intradía) ──────────────────────────────────
 
 export async function fetchQuote(
   symbol: string,
   range = "1d",
   interval = "5m"
 ): Promise<Quote> {
-  const json = await fetchChartJson(symbol, range, interval);
+  const path =
+    `/v8/finance/chart/${encodeURIComponent(symbol)}` +
+    `?range=${range}&interval=${interval}&includePrePost=false`;
 
+  const json = await fetchYF(path, 30);
   const result = json?.chart?.result?.[0];
   if (!result) {
     const desc = json?.chart?.error?.description ?? "respuesta vacía";
@@ -146,4 +138,60 @@ export async function fetchQuotes(
       });
   });
   return { quotes, errors };
+}
+
+// ── QuoteSummary (fundamentales de empresa) ────────────────────────────────
+
+export async function fetchQuoteSummary(symbol: string): Promise<any> {
+  const modules = [
+    "summaryProfile",
+    "financialData",
+    "defaultKeyStatistics",
+    "incomeStatementHistory",
+    "cashflowStatementHistory",
+    "balanceSheetHistory",
+  ].join(",");
+
+  const path =
+    `/v10/finance/quoteSummary/${encodeURIComponent(symbol)}` +
+    `?modules=${encodeURIComponent(modules)}&lang=en-US&region=US`;
+
+  const json = await fetchYF(path, 300);
+  const result = json?.quoteSummary?.result?.[0];
+  if (!result) {
+    const err = json?.quoteSummary?.error?.description ?? "sin datos";
+    throw new Error(`Yahoo quoteSummary ${symbol}: ${err}`);
+  }
+  return result;
+}
+
+// ── Noticias financieras ───────────────────────────────────────────────────
+
+export async function fetchNews(
+  query: string,
+  count = 20
+): Promise<NewsArticle[]> {
+  const path =
+    `/v1/finance/search?q=${encodeURIComponent(query)}` +
+    `&quotesCount=0&newsCount=${count}&lang=en-US&region=US`;
+
+  try {
+    const json = await fetchYF(path, 300);
+    const raw: any[] = json?.news ?? [];
+    return raw.map((n: any) => ({
+      uuid: n.uuid ?? String(Math.random()),
+      title: n.title ?? "",
+      summary: n.summary ?? "",
+      publisher: n.publisher ?? "",
+      link: n.link ?? "",
+      publishedAt: Number(n.providerPublishTime ?? 0),
+      thumbnail:
+        n.thumbnail?.resolutions?.[0]?.url ??
+        n.thumbnail?.resolutions?.[1]?.url ??
+        undefined,
+      relatedSymbols: (n.relatedTickers ?? []).slice(0, 5),
+    }));
+  } catch {
+    return [];
+  }
 }
