@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  AreaChart,
+  ComposedChart,
   Area,
   Line,
   XAxis,
@@ -22,14 +22,16 @@ function EntryChart({ e, horizon }: { e: AssetForecastEntry; horizon: number }) 
     e.monte_carlo.bands,
     horizon
   );
+  const chartData = data.map((pt) => ({ ...pt, hi: pt.lo + pt.outer }));
+  const gradId = `ag-${e.portfolio}`;
 
   return (
     <ResponsiveContainer width="100%" height={160}>
-      <AreaChart data={data} margin={{ top: 8, right: 10, left: -16, bottom: 0 }}>
+      <ComposedChart data={chartData} margin={{ top: 8, right: 10, left: -16, bottom: 0 }}>
         <defs>
-          <linearGradient id={`ag-${e.portfolio}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4c8dff" stopOpacity={0.22} />
-            <stop offset="100%" stopColor="#4c8dff" stopOpacity={0.04} />
+          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#4c8dff" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="#4c8dff" stopOpacity={0.08} />
           </linearGradient>
         </defs>
         <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="2 5" vertical={false} />
@@ -63,23 +65,10 @@ function EntryChart({ e, horizon }: { e: AssetForecastEntry; horizon: number }) 
               : (null as unknown as [string, string])
           }
         />
-        <Area dataKey="lo" stackId="b" stroke="none" fill="none" isAnimationActive={false} />
-        <Area
-          dataKey="outer"
-          stackId="b"
-          stroke="none"
-          fill={`url(#ag-${e.portfolio})`}
-          isAnimationActive={false}
-        />
-        <Line
-          type="monotone"
-          dataKey="ens"
-          stroke="#2ec16e"
-          strokeWidth={2.5}
-          dot={false}
-          isAnimationActive={false}
-        />
-      </AreaChart>
+        <Area dataKey="hi" stroke="none" fill={`url(#${gradId})`} legendType="none" isAnimationActive={false} />
+        <Area dataKey="lo" stroke="none" fill="#14161c" legendType="none" isAnimationActive={false} />
+        <Line type="monotone" dataKey="ens" stroke="#2ec16e" strokeWidth={2.5} dot={false} isAnimationActive={false} />
+      </ComposedChart>
     </ResponsiveContainer>
   );
 }

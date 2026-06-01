@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  AreaChart,
+  ComposedChart,
   Area,
   Line,
   XAxis,
@@ -27,22 +27,22 @@ function pct(x: number) {
 }
 
 function ForecastChart({ p, horizon }: { p: PortfolioForecast; horizon: number }) {
-  // Render de banda: se apilan áreas (stackId="band") sobre una base invisible
-  // `lo`, de modo que la banda P5–P95 "flota" sin pintar el fondo de la tarjeta.
   const { data } = buildForecastSeries(
     p.ensemble.last_price,
     p.ensemble_forecast,
     p.monte_carlo.bands,
     horizon
   );
+  // hi = lo + outer (upper bound of uncertainty band)
+  const chartData = data.map((pt) => ({ ...pt, hi: pt.lo + pt.outer }));
 
   return (
     <ResponsiveContainer width="100%" height={180}>
-      <AreaChart data={data} margin={{ top: 8, right: 10, left: -16, bottom: 0 }}>
+      <ComposedChart data={chartData} margin={{ top: 8, right: 10, left: -16, bottom: 0 }}>
         <defs>
           <linearGradient id="bandGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4c8dff" stopOpacity={0.22} />
-            <stop offset="100%" stopColor="#4c8dff" stopOpacity={0.04} />
+            <stop offset="0%" stopColor="#4c8dff" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="#4c8dff" stopOpacity={0.08} />
           </linearGradient>
         </defs>
         <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="2 5" vertical={false} />
@@ -75,33 +75,13 @@ function ForecastChart({ p, horizon }: { p: PortfolioForecast; horizon: number }
             return null as unknown as [string, string];
           }}
         />
-        {/* Base invisible que posiciona la banda */}
-        <Area
-          dataKey="lo"
-          stackId="band"
-          stroke="none"
-          fill="none"
-          isAnimationActive={false}
-          legendType="none"
-        />
-        {/* Banda P5–P95 (incertidumbre Monte Carlo) */}
-        <Area
-          dataKey="outer"
-          stackId="band"
-          stroke="none"
-          fill="url(#bandGrad)"
-          isAnimationActive={false}
-        />
-        {/* Línea del ensamble */}
-        <Line
-          type="monotone"
-          dataKey="ens"
-          stroke="#2ec16e"
-          strokeWidth={2.5}
-          dot={false}
-          isAnimationActive={false}
-        />
-      </AreaChart>
+        {/* hi area with gradient — renders behind (full band from baseline to hi) */}
+        <Area dataKey="hi" stroke="none" fill="url(#bandGrad)" legendType="none" isAnimationActive={false} />
+        {/* lo area covers baseline-to-lo with card color, leaving only the band visible */}
+        <Area dataKey="lo" stroke="none" fill="#14161c" legendType="none" isAnimationActive={false} />
+        {/* Ensemble line on top */}
+        <Line type="monotone" dataKey="ens" stroke="#2ec16e" strokeWidth={2.5} dot={false} isAnimationActive={false} />
+      </ComposedChart>
     </ResponsiveContainer>
   );
 }
