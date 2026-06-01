@@ -12,6 +12,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import AssetForecast from "@/components/AssetForecast";
+import { ASSET_NAMES } from "@/lib/providers/yahoo";
+import { STATIC_PROFILES } from "@/lib/data/company-profiles";
 import type { FinancialsResponse, Quote } from "@/lib/types";
 
 function fmt$(n: number | null, suffix = ""): string {
@@ -55,32 +57,47 @@ export default function CompanyPage() {
   const symbol = ((params?.symbol as string) ?? "").toUpperCase();
 
   const [financials, setFinancials] = useState<FinancialsResponse | null>(null);
+  const [finError, setFinError] = useState<string | null>(null);
   const [quote, setQuote] = useState<Quote | null>(null);
   const [history, setHistory] = useState<{ t: number; c: number }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  // Datos estáticos (siempre disponibles, no dependen de la red).
+  const staticProfile = STATIC_PROFILES[symbol];
+  const staticName = ASSET_NAMES[symbol] ?? symbol;
 
   useEffect(() => {
     if (!symbol) return;
     setLoading(true);
-    setError(null);
+    setFinError(null);
+    setFinancials(null);
+    setQuote(null);
+    setHistory([]);
 
-    Promise.all([
-      fetch(`/api/financials?symbol=${symbol}`).then((r) => r.json()),
-      fetch(
-        `/api/quote?symbols=${symbol}&range=3mo&interval=1d`,
-        { cache: "no-store" }
-      ).then((r) => r.json()),
-    ])
-      .then(([fin, q]) => {
+    // Cada fuente falla de forma independiente: un error en financieros NO
+    // debe ocultar la gráfica de precio ni el pronóstico (que son autónomos).
+    const finP = fetch(`/api/financials?symbol=${symbol}`)
+      .then((r) => r.json())
+      .then((fin) => {
         if (fin.error) throw new Error(fin.error);
         setFinancials(fin as FinancialsResponse);
+      })
+      .catch((e) => setFinError(String(e.message ?? e)));
+
+    const quoteP = fetch(`/api/quote?symbols=${symbol}&range=3mo&interval=1d`, {
+      cache: "no-store",
+    })
+      .then((r) => r.json())
+      .then((q) => {
         const qdata = q?.quotes?.[0] ?? null;
         setQuote(qdata);
         setHistory(qdata?.series ?? []);
       })
-      .catch((e) => setError(String(e.message ?? e)))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        /* la gráfica simplemente no se mostrará */
+      });
+
+    Promise.allSettled([finP, quoteP]).finally(() => setLoading(false));
   }, [symbol]);
 
   if (loading) {
@@ -93,22 +110,8 @@ export default function CompanyPage() {
     );
   }
 
-  if (error) {
-    return (
-      <main className="container">
-        <div className="note" style={{ marginTop: 32 }}>
-          Error cargando datos para <strong>{symbol}</strong>: {error}
-        </div>
-        <Link href="/company" style={{ display: "block", marginTop: 16 }}>
-          ← Volver a compañías
-        </Link>
-      </main>
-    );
-  }
-
-  if (!financials) return null;
-
-  const { profile, keyStats, income, balanceSheet, cashFlow } = financials;
+  // Perfil: usa datos en vivo si llegaron, si no cae al perfil estático.
+  const profile = financials?.profile;
   const up = (quote?.changePct ?? 0) >= 0;
 
   const chartData = history.map((p) => ({
@@ -131,15 +134,17 @@ export default function CompanyPage() {
       <div className="company-header card">
         <div className="ch-left">
           <div className="ch-sym">{symbol}</div>
-          <div className="ch-name">{financials.name}</div>
-          {profile.sector && (
+          <div className="ch-name">{financials?.name ?? staticName}</div>
+          {profile?.sector ? (
             <div className="ch-meta">
               {profile.sector}
               {profile.industry ? ` · ${profile.industry}` : ""}
               {profile.country ? ` · ${profile.country}` : ""}
             </div>
-          )}
-          {profile.website && (
+          ) : staticProfile ? (
+            <div className="ch-meta">{staticProfile.tickerType}</div>
+          ) : null}
+          {profile?.website && (
             <a
               href={profile.website}
               target="_blank"
@@ -164,9 +169,9 @@ export default function CompanyPage() {
       </div>
 
       {/* Price chart */}
-      {chartData.length > 0 && (
-        <section>
-          <h2 className="section-title">Precio histórico (3 meses)</h2>
+      <section>
+        <h2 className="section-title">Precio histórico (3 meses)</h2>
+        {chartData.length > 0 ? (
           <div className="card" style={{ padding: "16px 8px 8px" }}>
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={chartData}>
@@ -211,12 +216,33 @@ export default function CompanyPage() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="note">
+            No hay datos de precio en vivo disponibles ahora mismo. La cotización en
+            tiempo real requiere <code>FMP_API_KEY</code> configurada en Vercel
+            (Yahoo bloquea las IPs de servidor). El pronóstico de abajo y el perfil
+            no se ven afectados.
+          </div>
+        )}
+      </section>
 
-      {/* Per-asset forecast across portfolios */}
+      {/* Per-asset forecast across portfolios (datos estáticos, siempre disponible) */}
       <AssetForecast symbol={symbol} />
 
+      {/* Estados financieros en vivo (solo si la fuente respondió) */}
+      {finError && (
+        <div className="note">
+          No se pudieron cargar los estados financieros en vivo de{" "}
+          <strong>{symbol}</strong>. Configura <code>FMP_API_KEY</code> en Vercel
+          para activarlos (Yahoo devuelve 401/403 desde servidores). Detalle:{" "}
+          {finError}
+        </div>
+      )}
+
+      {financials && (() => {
+        const { keyStats, income, balanceSheet, cashFlow } = financials;
+        return (
+      <>
       {/* Key Stats */}
       <section>
         <h2 className="section-title">Métricas clave</h2>
@@ -252,8 +278,11 @@ export default function CompanyPage() {
             }
           />
           <StatCard label="Dividend Yield" value={keyStats.dividendYield != null ? fmtPct(keyStats.dividendYield) : "N/A"} />
-          {profile.employees != null && (
-            <StatCard label="Empleados" value={profile.employees.toLocaleString("es-CO")} />
+          {financials.profile.employees != null && (
+            <StatCard
+              label="Empleados"
+              value={financials.profile.employees.toLocaleString("es-CO")}
+            />
           )}
         </div>
       </section>
@@ -362,52 +391,62 @@ export default function CompanyPage() {
           />
         </div>
       </section>
+      </>
+        );
+      })()}
 
-      {/* Mission & Vision */}
-      <section>
-        <h2 className="section-title">Perfil corporativo</h2>
-        <div className="profile-grid">
-          <div className="profile-card card">
-            <div className="profile-icon">🎯</div>
-            <h3>Misión</h3>
-            <p>{profile.mission}</p>
-          </div>
-          <div className="profile-card card">
-            <div className="profile-icon">🔭</div>
-            <h3>Visión</h3>
-            <p>{profile.vision}</p>
-          </div>
-        </div>
-        {profile.description && (
-          <div className="card" style={{ marginTop: 16, padding: 20 }}>
-            <div className="section-title" style={{ marginBottom: 10 }}>
-              Descripción (Yahoo Finance)
+      {/* Mission & Vision (datos estáticos: siempre disponible) */}
+      {(() => {
+        const mission = profile?.mission ?? staticProfile?.mission;
+        const vision = profile?.vision ?? staticProfile?.vision;
+        const founded = profile?.founded ?? staticProfile?.founded;
+        const hq = profile?.hq ?? staticProfile?.hq;
+        if (!mission && !vision) return null;
+        return (
+          <section>
+            <h2 className="section-title">Perfil corporativo</h2>
+            <div className="profile-grid">
+              <div className="profile-card card">
+                <div className="profile-icon">🎯</div>
+                <h3>Misión</h3>
+                <p>{mission}</p>
+              </div>
+              <div className="profile-card card">
+                <div className="profile-icon">🔭</div>
+                <h3>Visión</h3>
+                <p>{vision}</p>
+              </div>
             </div>
-            <p style={{ fontSize: 13, lineHeight: 1.7, color: "#c4c8d4", margin: 0 }}>
-              {profile.description}
-            </p>
-          </div>
-        )}
-        <div className="card" style={{ marginTop: 16, padding: 16 }}>
-          <div className="chips-row">
-            {profile.founded !== "N/A" && (
-              <span className="chip">📅 Fundada: {profile.founded}</span>
+            {profile?.description && (
+              <div className="card" style={{ marginTop: 16, padding: 20 }}>
+                <div className="section-title" style={{ marginBottom: 10 }}>
+                  Descripción de la empresa
+                </div>
+                <p style={{ fontSize: 13, lineHeight: 1.7, color: "var(--text-dim)", margin: 0 }}>
+                  {profile.description}
+                </p>
+              </div>
             )}
-            {profile.hq !== "N/A" && (
-              <span className="chip">📍 {profile.hq}</span>
-            )}
-            {profile.sector && (
-              <span className="chip">🏭 {profile.sector}</span>
-            )}
-            {profile.industry && (
-              <span className="chip">⚙️ {profile.industry}</span>
-            )}
-          </div>
-        </div>
-      </section>
+            <div className="card" style={{ marginTop: 16, padding: 16 }}>
+              <div className="chips-row">
+                {founded && founded !== "N/A" && (
+                  <span className="chip">📅 Fundada: {founded}</span>
+                )}
+                {hq && hq !== "N/A" && <span className="chip">📍 {hq}</span>}
+                {profile?.sector && <span className="chip">🏭 {profile.sector}</span>}
+                {profile?.industry && (
+                  <span className="chip">⚙️ {profile.industry}</span>
+                )}
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       <footer>
-        Datos de mercado: Yahoo Finance · Financieros TTM (últimos 12 meses) · Solo con fines educativos, no constituye asesoría de inversión.
+        Datos en vivo: Financial Modeling Prep (o Yahoo Finance como respaldo) ·
+        Financieros TTM (últimos 12 meses) · Pronósticos: ensamble validado con
+        Monte Carlo · Solo con fines educativos, no constituye asesoría de inversión.
       </footer>
     </main>
   );
