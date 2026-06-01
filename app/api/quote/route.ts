@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchQuotes } from "@/lib/providers/yahoo";
+import { fmpEnabled, fmpFetchQuotes } from "@/lib/providers/fmp";
 import type { QuoteResponse } from "@/lib/types";
 
 // Yahoo necesita el runtime de Node (fetch con headers personalizados).
@@ -30,10 +31,14 @@ export async function GET(req: NextRequest) {
   const interval = searchParams.get("interval") ?? "5m";
 
   try {
-    const { quotes, errors } = await fetchQuotes(symbols, range, interval);
+    // FMP (con API key) funciona desde servidores; Yahoo es el fallback.
+    const useFmp = fmpEnabled();
+    const { quotes, errors } = useFmp
+      ? await fmpFetchQuotes(symbols, range, interval)
+      : await fetchQuotes(symbols, range, interval);
     const body: QuoteResponse = {
       asOf: new Date().toISOString(),
-      source: "yahoo-finance/v8-chart",
+      source: useFmp ? "financial-modeling-prep" : "yahoo-finance/v8-chart",
       quotes,
       ...(errors.length ? { errors } : {}),
     };

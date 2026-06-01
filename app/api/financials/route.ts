@@ -1,5 +1,6 @@
 import { fetchQuoteSummary } from "@/lib/providers/yahoo";
 import { ASSET_NAMES } from "@/lib/providers/yahoo";
+import { fmpEnabled, fmpFinancials } from "@/lib/providers/fmp";
 import { STATIC_PROFILES } from "@/lib/data/company-profiles";
 import type {
   FinancialsResponse,
@@ -22,6 +23,21 @@ export async function GET(request: Request) {
 
   if (!symbol) {
     return Response.json({ error: "symbol requerido" }, { status: 400 });
+  }
+
+  // FMP (con API key) entrega estados financieros completos desde el servidor.
+  if (fmpEnabled()) {
+    try {
+      const response = await fmpFinancials(symbol);
+      return Response.json(response, {
+        headers: { "Cache-Control": "s-maxage=300, stale-while-revalidate=600" },
+      });
+    } catch (err) {
+      return Response.json(
+        { error: String((err as Error).message ?? err) },
+        { status: 502 }
+      );
+    }
   }
 
   try {

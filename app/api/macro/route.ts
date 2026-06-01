@@ -1,14 +1,22 @@
 import { fetchQuotes } from "@/lib/providers/yahoo";
+import { fmpEnabled, fmpBatchQuote } from "@/lib/providers/fmp";
 import type { MacroResponse, MacroRegion, MacroIndicator } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+interface MacroAsset {
+  symbol: string; // símbolo Yahoo
+  fmp?: string; // equivalente FMP (si difiere / está disponible)
+  name: string;
+  category: string;
+}
+
 interface RegionDef {
   region: string;
   label: string;
   flag: string;
-  assets: { symbol: string; name: string; category: string }[];
+  assets: MacroAsset[];
 }
 
 const MACRO_REGIONS: RegionDef[] = [
@@ -17,13 +25,13 @@ const MACRO_REGIONS: RegionDef[] = [
     label: "Estados Unidos",
     flag: "🇺🇸",
     assets: [
-      { symbol: "^GSPC", name: "S&P 500", category: "Mercado" },
-      { symbol: "^DJI", name: "Dow Jones", category: "Mercado" },
-      { symbol: "^IXIC", name: "Nasdaq Composite", category: "Mercado" },
-      { symbol: "^VIX", name: "VIX (Volatilidad)", category: "Riesgo" },
-      { symbol: "^TNX", name: "Bono 10 años EE.UU.", category: "Tasas" },
-      { symbol: "GC=F", name: "Oro (Futuros)", category: "Commodities" },
-      { symbol: "CL=F", name: "Petróleo WTI", category: "Commodities" },
+      { symbol: "^GSPC", fmp: "^GSPC", name: "S&P 500", category: "Mercado" },
+      { symbol: "^DJI", fmp: "^DJI", name: "Dow Jones", category: "Mercado" },
+      { symbol: "^IXIC", fmp: "^IXIC", name: "Nasdaq Composite", category: "Mercado" },
+      { symbol: "^VIX", fmp: "^VIX", name: "VIX (Volatilidad)", category: "Riesgo" },
+      { symbol: "^TNX", fmp: "^TNX", name: "Bono 10 años EE.UU.", category: "Tasas" },
+      { symbol: "GC=F", fmp: "GCUSD", name: "Oro (Futuros)", category: "Commodities" },
+      { symbol: "CL=F", fmp: "CLUSD", name: "Petróleo WTI", category: "Commodities" },
       { symbol: "DX-Y.NYB", name: "Índice USD (DXY)", category: "Divisas" },
     ],
   },
@@ -32,10 +40,10 @@ const MACRO_REGIONS: RegionDef[] = [
     label: "China",
     flag: "🇨🇳",
     assets: [
-      { symbol: "FXI", name: "iShares China Large-Cap ETF", category: "Mercado" },
-      { symbol: "MCHI", name: "MSCI China ETF", category: "Mercado" },
-      { symbol: "KWEB", name: "China Internet ETF", category: "Tecnología" },
-      { symbol: "CNY=X", name: "Yuan Chino (CNY/USD)", category: "Divisas" },
+      { symbol: "FXI", fmp: "FXI", name: "iShares China Large-Cap ETF", category: "Mercado" },
+      { symbol: "MCHI", fmp: "MCHI", name: "MSCI China ETF", category: "Mercado" },
+      { symbol: "KWEB", fmp: "KWEB", name: "China Internet ETF", category: "Tecnología" },
+      { symbol: "CNY=X", fmp: "USDCNY", name: "Yuan (USD/CNY)", category: "Divisas" },
     ],
   },
   {
@@ -43,10 +51,10 @@ const MACRO_REGIONS: RegionDef[] = [
     label: "Unión Europea",
     flag: "🇪🇺",
     assets: [
-      { symbol: "EZU", name: "iShares MSCI Eurozone ETF", category: "Mercado" },
-      { symbol: "EURUSD=X", name: "EUR/USD", category: "Divisas" },
-      { symbol: "EWG", name: "iShares MSCI Germany ETF", category: "Mercado" },
-      { symbol: "EWQ", name: "iShares MSCI France ETF", category: "Mercado" },
+      { symbol: "EZU", fmp: "EZU", name: "iShares MSCI Eurozone ETF", category: "Mercado" },
+      { symbol: "EURUSD=X", fmp: "EURUSD", name: "EUR/USD", category: "Divisas" },
+      { symbol: "EWG", fmp: "EWG", name: "iShares MSCI Germany ETF", category: "Mercado" },
+      { symbol: "EWQ", fmp: "EWQ", name: "iShares MSCI France ETF", category: "Mercado" },
     ],
   },
   {
@@ -54,10 +62,9 @@ const MACRO_REGIONS: RegionDef[] = [
     label: "Rusia",
     flag: "🇷🇺",
     assets: [
-      { symbol: "RSSX", name: "Rusia (proxy RSSX)", category: "Mercado" },
-      { symbol: "RUB=X", name: "Rublo Ruso (RUB/USD)", category: "Divisas" },
-      { symbol: "NG=F", name: "Gas Natural (Futuros)", category: "Commodities" },
-      { symbol: "URA", name: "Global Uranium ETF", category: "Energía" },
+      { symbol: "RUB=X", fmp: "USDRUB", name: "Rublo (USD/RUB)", category: "Divisas" },
+      { symbol: "NG=F", fmp: "NGUSD", name: "Gas Natural (Futuros)", category: "Commodities" },
+      { symbol: "URA", fmp: "URA", name: "Global Uranium ETF", category: "Energía" },
     ],
   },
   {
@@ -65,9 +72,9 @@ const MACRO_REGIONS: RegionDef[] = [
     label: "Colombia",
     flag: "🇨🇴",
     assets: [
-      { symbol: "GXG", name: "Global X MSCI Colombia ETF", category: "Mercado" },
-      { symbol: "COP=X", name: "Peso Colombiano (COP/USD)", category: "Divisas" },
-      { symbol: "EC", name: "Ecopetrol S.A.", category: "Energía" },
+      { symbol: "GXG", fmp: "GXG", name: "Global X MSCI Colombia ETF", category: "Mercado" },
+      { symbol: "COP=X", fmp: "USDCOP", name: "Peso (USD/COP)", category: "Divisas" },
+      { symbol: "EC", fmp: "EC", name: "Ecopetrol S.A.", category: "Energía" },
     ],
   },
   {
@@ -75,32 +82,50 @@ const MACRO_REGIONS: RegionDef[] = [
     label: "América Latina",
     flag: "🌎",
     assets: [
-      { symbol: "ILF", name: "iShares Latin America 40 ETF", category: "Mercado" },
-      { symbol: "EWZ", name: "iShares MSCI Brazil ETF", category: "Mercado" },
-      { symbol: "EWW", name: "iShares MSCI Mexico ETF", category: "Mercado" },
-      { symbol: "ARGT", name: "Global X MSCI Argentina ETF", category: "Mercado" },
-      { symbol: "BRL=X", name: "Real Brasileño (BRL/USD)", category: "Divisas" },
-      { symbol: "MXN=X", name: "Peso Mexicano (MXN/USD)", category: "Divisas" },
+      { symbol: "ILF", fmp: "ILF", name: "iShares Latin America 40 ETF", category: "Mercado" },
+      { symbol: "EWZ", fmp: "EWZ", name: "iShares MSCI Brazil ETF", category: "Mercado" },
+      { symbol: "EWW", fmp: "EWW", name: "iShares MSCI Mexico ETF", category: "Mercado" },
+      { symbol: "ARGT", fmp: "ARGT", name: "Global X MSCI Argentina ETF", category: "Mercado" },
+      { symbol: "BRL=X", fmp: "USDBRL", name: "Real (USD/BRL)", category: "Divisas" },
+      { symbol: "MXN=X", fmp: "USDMXN", name: "Peso Méx. (USD/MXN)", category: "Divisas" },
     ],
   },
 ];
 
 export async function GET() {
-  const allSymbols = MACRO_REGIONS.flatMap((r) => r.assets.map((a) => a.symbol));
-  const { quotes, errors } = await fetchQuotes(allSymbols, "1d", "1d");
+  const useFmp = fmpEnabled();
+  const errorMessages: string[] = [];
 
-  const quoteMap = new Map(quotes.map((q) => [q.symbol, q]));
+  // priceFor(asset) → { price, changePct } | null
+  let lookup: (a: MacroAsset) => { price: number; changePct: number } | null;
+
+  if (useFmp) {
+    const fmpSymbols = MACRO_REGIONS.flatMap((r) =>
+      r.assets.map((a) => a.fmp).filter((x): x is string => !!x)
+    );
+    const map = await fmpBatchQuote(fmpSymbols);
+    lookup = (a) => (a.fmp ? map.get(a.fmp) ?? null : null);
+  } else {
+    const allSymbols = MACRO_REGIONS.flatMap((r) => r.assets.map((a) => a.symbol));
+    const { quotes, errors } = await fetchQuotes(allSymbols, "1d", "1d");
+    errors.forEach((e) => errorMessages.push(`${e.symbol}: ${e.message}`));
+    const qmap = new Map(quotes.map((q) => [q.symbol, q]));
+    lookup = (a) => {
+      const q = qmap.get(a.symbol);
+      return q ? { price: q.price, changePct: q.changePct } : null;
+    };
+  }
 
   const regions: MacroRegion[] = MACRO_REGIONS.map((regionDef) => {
     const indicators: MacroIndicator[] = regionDef.assets
       .map((a) => {
-        const q = quoteMap.get(a.symbol);
-        if (!q) return null;
+        const v = lookup(a);
+        if (!v) return null;
         return {
           symbol: a.symbol,
           name: a.name,
-          price: q.price,
-          changePct: q.changePct,
+          price: v.price,
+          changePct: v.changePct,
           category: a.category,
         } satisfies MacroIndicator;
       })
@@ -113,8 +138,6 @@ export async function GET() {
       indicators,
     };
   });
-
-  const errorMessages = errors.map((e) => `${e.symbol}: ${e.message}`);
 
   const response: MacroResponse = {
     regions,
