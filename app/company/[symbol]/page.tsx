@@ -11,6 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import AssetForecast from "@/components/AssetForecast";
 import type { FinancialsResponse, Quote } from "@/lib/types";
 
 function fmt$(n: number | null, suffix = ""): string {
@@ -212,6 +213,9 @@ export default function CompanyPage() {
           </div>
         </section>
       )}
+
+      {/* Per-asset forecast across portfolios */}
+      <AssetForecast symbol={symbol} />
 
       {/* Key Stats */}
       <section>
