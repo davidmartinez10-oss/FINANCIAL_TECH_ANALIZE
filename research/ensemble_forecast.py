@@ -392,7 +392,10 @@ def monte_carlo(nav: pd.Series, ensemble_fc: np.ndarray, H=21,
 # ═════════════════════════════════════════════════════════════════════════════
 # 7. ORQUESTADOR
 # ═════════════════════════════════════════════════════════════════════════════
-def run_full_pipeline(H=21, n_sims=10_000, years=3, out_json="forecast_results.json"):
+# H=126 días hábiles ≈ 6 meses: cubre de forma nativa todos los horizontes del
+# selector de la web (día/semana/mes/3M/6M). La UI hace slicing del pronóstico
+# real para horizontes ≤ H; si H fuera menor, extrapola y lo etiqueta como tal.
+def run_full_pipeline(H=126, n_sims=10_000, years=3, out_json="forecast_results.json"):
     end = datetime.today().strftime("%Y-%m-%d")
     start = (datetime.today() - relativedelta(years=years + 1)).strftime("%Y-%m-%d")
 

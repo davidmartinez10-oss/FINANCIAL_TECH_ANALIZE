@@ -12,6 +12,8 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { ForecastResults, PortfolioForecast } from "@/lib/types";
+import { buildForecastSeries } from "@/lib/forecast";
+import HorizonTabs from "@/components/HorizonTabs";
 
 const PROB_LABELS: Record<string, string> = {
   P_positivo: "Prob. retorno positivo",
@@ -24,39 +26,15 @@ function pct(x: number) {
   return `${(x * 100).toFixed(1)}%`;
 }
 
-function ForecastChart({ p }: { p: PortfolioForecast }) {
-  const P0 = p.ensemble.last_price;
-  const fc = p.ensemble_forecast;
-  const p5 = p.monte_carlo.bands["P5"];
-  const p25 = p.monte_carlo.bands["P25"];
-  const p75 = p.monte_carlo.bands["P75"];
-  const p95 = p.monte_carlo.bands["P95"];
-
-  // Serie: día 0 = precio actual, luego horizonte. Las bandas MC (P5–P95 y
-  // el rango intercuartílico P25–P75) se interpolan desde P0 hacia los
-  // percentiles terminales → envolvente de incertidumbre creciente.
-  //
-  // Render correcto de banda: se apilan áreas (stackId="band") sobre una base
-  // invisible `lo`, de modo que la banda "flota" sin pintar el fondo de la
-  // tarjeta (evita el desajuste de color con --panel).
-  const H = fc.length;
-  const data = [
-    { d: 0, ens: P0, lo: P0, outer: 0, iqr: 0 },
-  ];
-  for (let i = 0; i < H; i++) {
-    const frac = (i + 1) / H;
-    const lo = P0 + (p5 - P0) * frac;
-    const hi = P0 + (p95 - P0) * frac;
-    const q1 = P0 + (p25 - P0) * frac;
-    const q3 = P0 + (p75 - P0) * frac;
-    data.push({
-      d: i + 1,
-      ens: fc[i],
-      lo, // base invisible
-      outer: hi - lo, // banda P5–P95
-      iqr: q3 - q1, // ancho intercuartílico (informativo en tooltip)
-    });
-  }
+function ForecastChart({ p, horizon }: { p: PortfolioForecast; horizon: number }) {
+  // Render de banda: se apilan áreas (stackId="band") sobre una base invisible
+  // `lo`, de modo que la banda P5–P95 "flota" sin pintar el fondo de la tarjeta.
+  const { data } = buildForecastSeries(
+    p.ensemble.last_price,
+    p.ensemble_forecast,
+    p.monte_carlo.bands,
+    horizon
+  );
 
   return (
     <ResponsiveContainer width="100%" height={180}>
@@ -128,10 +106,24 @@ function ForecastChart({ p }: { p: PortfolioForecast }) {
   );
 }
 
-function PortfolioCard({ name, p }: { name: string; p: PortfolioForecast }) {
+function PortfolioCard({
+  name,
+  p,
+  horizon,
+}: {
+  name: string;
+  p: PortfolioForecast;
+  horizon: number;
+}) {
   const mc = p.monte_carlo;
-  const up = mc.ensemble_return_pct >= 0;
   const probs = mc.probabilities;
+  const series = buildForecastSeries(
+    p.ensemble.last_price,
+    p.ensemble_forecast,
+    p.monte_carlo.bands,
+    horizon
+  );
+  const up = series.endpointReturnPct >= 0;
 
   return (
     <div className="card fc-card">
@@ -140,22 +132,29 @@ function PortfolioCard({ name, p }: { name: string; p: PortfolioForecast }) {
         <span className="badge">Sharpe {p.composition.sharpe.toFixed(2)}</span>
       </div>
 
-      <ForecastChart p={p} />
+      <ForecastChart p={p} horizon={horizon} />
+
+      {series.isExtrapolated && (
+        <div className="fc-extrap-tag">
+          Pronóstico del modelo: {series.modelHorizon}d · más allá = proyección
+          extendida (extrapolación)
+        </div>
+      )}
 
       <div className="metrics">
         <div className="metric">
-          <div className="label">Ensamble {p.ensemble.horizon}d</div>
+          <div className="label">Ensamble {horizon}d</div>
           <div className={`val ${up ? "up" : "down"}`}>
             {up ? "+" : ""}
-            {mc.ensemble_return_pct.toFixed(2)}%
+            {series.endpointReturnPct.toFixed(2)}%
           </div>
         </div>
         <div className="metric">
-          <div className="label">VaR 95%</div>
+          <div className="label">VaR 95% · 21d</div>
           <div className="val down">{mc.VaR_95_pct.toFixed(1)}%</div>
         </div>
         <div className="metric">
-          <div className="label">CVaR 95%</div>
+          <div className="label">CVaR 95% · 21d</div>
           <div className="val down">{mc.CVaR_95_pct.toFixed(1)}%</div>
         </div>
       </div>
@@ -168,7 +167,9 @@ function PortfolioCard({ name, p }: { name: string; p: PortfolioForecast }) {
               <span>{pct(probs[k])}</span>
             </div>
             <div className="bar">
-              <span style={{ width: `${Math.min(100, probs[k] * 100)}%` }} />
+              <span
+                style={{ transform: `scaleX(${Math.min(1, Math.max(0, probs[k]))})` }}
+              />
             </div>
           </div>
         ) : null
@@ -194,6 +195,7 @@ function PortfolioCard({ name, p }: { name: string; p: PortfolioForecast }) {
 
 export default function ForecastPanel() {
   const [data, setData] = useState<ForecastResults | null>(null);
+  const [horizon, setHorizon] = useState(21); // Mes por defecto
 
   useEffect(() => {
     fetch("/api/forecast")
@@ -221,12 +223,15 @@ export default function ForecastPanel() {
     <section>
       <h2 className="section-title">
         Pronósticos ensamblados (Prophet · ARIMAX · XGBoost · Holt-Winters) ·{" "}
-        {data.meta.n_sims.toLocaleString()} simulaciones Monte Carlo · horizonte{" "}
-        {data.meta.horizon_days}d
+        {data.meta.n_sims.toLocaleString()} simulaciones Monte Carlo
       </h2>
+      <div className="fc-toolbar">
+        <span className="fc-toolbar-label">Horizonte del pronóstico</span>
+        <HorizonTabs value={horizon} onChange={setHorizon} />
+      </div>
       <div className="fc-grid">
         {Object.entries(data.portfolios).map(([name, p]) => (
-          <PortfolioCard key={name} name={name} p={p} />
+          <PortfolioCard key={name} name={name} p={p} horizon={horizon} />
         ))}
       </div>
       {data.meta.data_mode === "synthetic" && (

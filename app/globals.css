@@ -40,9 +40,9 @@
   --r-md: 12px;
   --r-sm: 8px;
 
-  /* Curva de resorte (Apple/Linear-tier) */
+  /* Curvas ease-out exponenciales (deceleración natural, sin rebote) */
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
@@ -82,6 +82,13 @@ body {
 a {
   color: var(--accent);
   text-decoration: none;
+}
+
+/* Indicador de foco visible para navegación por teclado (a11y) */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 code {
@@ -219,10 +226,7 @@ header.topbar {
   letter-spacing: -0.03em;
   line-height: 1.05;
   text-wrap: balance;
-  background: linear-gradient(180deg, #fff, #b7bdca);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text);
 }
 
 .topbar .sub {
@@ -465,6 +469,74 @@ section {
 }
 
 /* ── Forecast ───────────────────────────────────────────── */
+.fc-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.fc-toolbar-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.horizon-tabs {
+  display: inline-flex;
+  gap: 3px;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  box-shadow: var(--inner-hl);
+  backdrop-filter: blur(10px);
+}
+
+.horizon-tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.4s var(--ease), background 0.4s var(--ease);
+}
+
+.horizon-tab:hover {
+  color: var(--text);
+}
+
+.horizon-tab.active {
+  color: #fff;
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(91, 155, 255, 0.3);
+}
+
+.horizon-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.fc-extrap-tag {
+  font-size: 10.5px;
+  color: var(--yellow);
+  background: rgba(245, 196, 81, 0.08);
+  border: 1px solid rgba(245, 196, 81, 0.2);
+  border-radius: var(--r-sm);
+  padding: 5px 9px;
+  margin: 10px 0 0;
+  line-height: 1.4;
+}
+
 .fc-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
@@ -555,10 +627,12 @@ section {
 .bar > span {
   display: block;
   height: 100%;
+  width: 100%;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--accent), var(--green));
   box-shadow: 0 0 12px rgba(91, 155, 255, 0.4);
-  transition: width 0.8s var(--ease);
+  transform-origin: left center;
+  transition: transform 0.8s var(--ease-out);
 }
 
 .weights {
@@ -592,9 +666,8 @@ section {
 .note {
   font-size: 12.5px;
   color: var(--text-dim);
-  background: var(--panel);
-  border: 1px solid var(--hairline);
-  border-left: 2px solid var(--yellow);
+  background: rgba(245, 196, 81, 0.06);
+  border: 1px solid rgba(245, 196, 81, 0.22);
   border-radius: var(--r-md);
   padding: 12px 16px;
   line-height: 1.6;
@@ -1230,7 +1303,7 @@ footer {
   height: 7px;
   border-radius: 50%;
   background: var(--muted);
-  animation: bounce 1.3s var(--ease) infinite;
+  animation: typing-fade 1.3s var(--ease-out) infinite;
 }
 
 .typing-indicator span:nth-child(2) {
@@ -1241,15 +1314,13 @@ footer {
   animation-delay: 0.36s;
 }
 
-@keyframes bounce {
+@keyframes typing-fade {
   0%,
   80%,
   100% {
-    transform: translateY(0);
-    opacity: 0.35;
+    opacity: 0.3;
   }
   40% {
-    transform: translateY(-7px);
     opacity: 1;
   }
 }

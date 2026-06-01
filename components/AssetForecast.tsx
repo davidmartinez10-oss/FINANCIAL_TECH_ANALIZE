@@ -12,21 +12,16 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { AssetForecastResponse, AssetForecastEntry } from "@/lib/types";
+import { buildForecastSeries } from "@/lib/forecast";
+import HorizonTabs from "@/components/HorizonTabs";
 
-function EntryChart({ e }: { e: AssetForecastEntry }) {
-  const P0 = e.last_price;
-  const fc = e.ensemble_forecast;
-  const p5 = e.monte_carlo.bands["P5"];
-  const p95 = e.monte_carlo.bands["P95"];
-
-  const H = fc.length;
-  const data = [{ d: 0, ens: P0, lo: P0, outer: 0 }];
-  for (let i = 0; i < H; i++) {
-    const frac = (i + 1) / H;
-    const lo = P0 + (p5 - P0) * frac;
-    const hi = P0 + (p95 - P0) * frac;
-    data.push({ d: i + 1, ens: fc[i], lo, outer: hi - lo });
-  }
+function EntryChart({ e, horizon }: { e: AssetForecastEntry; horizon: number }) {
+  const { data } = buildForecastSeries(
+    e.last_price,
+    e.ensemble_forecast,
+    e.monte_carlo.bands,
+    horizon
+  );
 
   return (
     <ResponsiveContainer width="100%" height={160}>
@@ -89,10 +84,16 @@ function EntryChart({ e }: { e: AssetForecastEntry }) {
   );
 }
 
-function EntryCard({ e }: { e: AssetForecastEntry }) {
+function EntryCard({ e, horizon }: { e: AssetForecastEntry; horizon: number }) {
   const mc = e.monte_carlo;
-  const up = mc.ensemble_return_pct >= 0;
   const probPos = mc.probabilities["P_positivo"];
+  const series = buildForecastSeries(
+    e.last_price,
+    e.ensemble_forecast,
+    e.monte_carlo.bands,
+    horizon
+  );
+  const up = series.endpointReturnPct >= 0;
 
   return (
     <div className="card fc-card reveal">
@@ -101,22 +102,28 @@ function EntryCard({ e }: { e: AssetForecastEntry }) {
         <span className="badge">Peso {(e.weight * 100).toFixed(1)}%</span>
       </div>
 
-      <EntryChart e={e} />
+      <EntryChart e={e} horizon={horizon} />
+
+      {series.isExtrapolated && (
+        <div className="fc-extrap-tag">
+          Modelo: {series.modelHorizon}d · más allá = proyección extendida
+        </div>
+      )}
 
       <div className="metrics">
         <div className="metric">
-          <div className="label">Ensamble {e.horizon}d</div>
+          <div className="label">Ensamble {horizon}d</div>
           <div className={`val ${up ? "up" : "down"}`}>
             {up ? "+" : ""}
-            {mc.ensemble_return_pct.toFixed(2)}%
+            {series.endpointReturnPct.toFixed(2)}%
           </div>
         </div>
         <div className="metric">
-          <div className="label">VaR 95%</div>
+          <div className="label">VaR 95% · 21d</div>
           <div className="val down">{mc.VaR_95_pct.toFixed(1)}%</div>
         </div>
         <div className="metric">
-          <div className="label">Prob. +</div>
+          <div className="label">Prob. + · 21d</div>
           <div className="val accent">
             {probPos != null ? `${(probPos * 100).toFixed(0)}%` : "N/A"}
           </div>
@@ -137,6 +144,7 @@ function EntryCard({ e }: { e: AssetForecastEntry }) {
 export default function AssetForecast({ symbol }: { symbol: string }) {
   const [data, setData] = useState<AssetForecastResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [horizon, setHorizon] = useState(21);
 
   useEffect(() => {
     if (!symbol) return;
@@ -181,9 +189,13 @@ export default function AssetForecast({ symbol }: { symbol: string }) {
         Pronóstico del activo · presente en {data.forecast_data.length}{" "}
         {data.forecast_data.length === 1 ? "portafolio" : "portafolios"}
       </h2>
+      <div className="fc-toolbar">
+        <span className="fc-toolbar-label">Horizonte del pronóstico</span>
+        <HorizonTabs value={horizon} onChange={setHorizon} />
+      </div>
       <div className="fc-grid">
         {data.forecast_data.map((e) => (
-          <EntryCard key={e.portfolio} e={e} />
+          <EntryCard key={e.portfolio} e={e} horizon={horizon} />
         ))}
       </div>
       <div className="note" style={{ marginTop: 14 }}>
