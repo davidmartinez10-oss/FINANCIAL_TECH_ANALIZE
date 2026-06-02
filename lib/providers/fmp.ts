@@ -202,18 +202,28 @@ export async function fmpBatchQuote(
 // ── Estados financieros ──────────────────────────────────────────────────────
 
 export async function fmpFinancials(symbol: string): Promise<FinancialsResponse> {
-  const [profileArr, incomeArr, balanceArr, cashArr, keyMetricsArr, ratiosArr, growthArr] =
-    await Promise.all([
-      fmpGet(`/profile/${symbol}`, 600).catch(() => []),
-      fmpGet(`/income-statement/${symbol}?period=annual&limit=1`, 600).catch(() => []),
-      fmpGet(`/balance-sheet-statement/${symbol}?period=annual&limit=1`, 600).catch(() => []),
-      fmpGet(`/cash-flow-statement/${symbol}?period=annual&limit=1`, 600).catch(() => []),
-      fmpGet(`/key-metrics-ttm/${symbol}`, 600).catch(() => []),
-      fmpGet(`/ratios-ttm/${symbol}`, 600).catch(() => []),
-      fmpGet(`/income-statement-growth/${symbol}?limit=1`, 600).catch(() => []),
-    ]);
+  const [
+    profileArr,
+    quoteArr,
+    incomeArr,
+    balanceArr,
+    cashArr,
+    keyMetricsArr,
+    ratiosArr,
+    growthArr,
+  ] = await Promise.all([
+    fmpGet(`/profile/${symbol}`, 600).catch(() => []),
+    fmpGet(`/quote/${symbol}`, 60).catch(() => []), // gratis: pe, eps, marketCap, shares
+    fmpGet(`/income-statement/${symbol}?period=annual&limit=1`, 600).catch(() => []),
+    fmpGet(`/balance-sheet-statement/${symbol}?period=annual&limit=1`, 600).catch(() => []),
+    fmpGet(`/cash-flow-statement/${symbol}?period=annual&limit=1`, 600).catch(() => []),
+    fmpGet(`/key-metrics-ttm/${symbol}`, 600).catch(() => []),
+    fmpGet(`/ratios-ttm/${symbol}`, 600).catch(() => []),
+    fmpGet(`/income-statement-growth/${symbol}?limit=1`, 600).catch(() => []),
+  ]);
 
   const pr = profileArr?.[0] ?? {};
+  const qt = quoteArr?.[0] ?? {};
   const inc = incomeArr?.[0] ?? {};
   const bs = balanceArr?.[0] ?? {};
   const cf = cashArr?.[0] ?? {};
@@ -230,7 +240,7 @@ export async function fmpFinancials(symbol: string): Promise<FinancialsResponse>
 
   const profile: CompanyProfile = {
     symbol,
-    name: ASSET_NAMES[symbol] ?? pr.companyName ?? symbol,
+    name: ASSET_NAMES[symbol] ?? pr.companyName ?? qt.name ?? symbol,
     sector: pr.sector || null,
     industry: pr.industry || null,
     country: pr.country || null,
@@ -246,33 +256,50 @@ export async function fmpFinancials(symbol: string): Promise<FinancialsResponse>
         : sp.hq,
   };
 
+  // Valores base que el plan gratuito sí entrega de forma fiable.
+  const marketCap = num(pr.mktCap) ?? num(km.marketCapTTM) ?? num(qt.marketCap);
   const totalDebt = num(bs.totalDebt);
   const cash = num(bs.cashAndCashEquivalents) ?? num(bs.cashAndShortTermInvestments);
   const netDebt = totalDebt != null && cash != null ? totalDebt - cash : num(bs.netDebt);
+  const equity = num(bs.totalStockholdersEquity);
+  const revenue = num(inc.revenue);
+  const ebitda = num(inc.ebitda);
+
+  // Enterprise Value derivado si no viene precalculado.
+  const enterpriseValue =
+    num(km.enterpriseValueTTM) ??
+    (marketCap != null && totalDebt != null && cash != null
+      ? marketCap + totalDebt - cash
+      : null);
+
+  // Ratios: usa el valor del proveedor; si no, lo deriva de cifras base.
+  const div = (a: number | null, b: number | null): number | null =>
+    a != null && b != null && b !== 0 ? a / b : null;
 
   const keyStats: KeyStats = {
-    marketCap: num(pr.mktCap) ?? num(km.marketCapTTM),
-    enterpriseValue: num(km.enterpriseValueTTM),
-    peRatio: num(km.peRatioTTM) ?? num(pr.pe),
+    marketCap,
+    enterpriseValue,
+    peRatio: num(km.peRatioTTM) ?? num(qt.pe) ?? num(pr.pe),
     forwardPE: null,
-    pbRatio: num(km.pbRatioTTM),
-    psRatio: num(km.priceToSalesRatioTTM),
-    evToEbitda: num(km.enterpriseValueOverEBITDATTM),
-    returnOnEquity: num(ra.returnOnEquityTTM),
-    returnOnAssets: num(ra.returnOnAssetsTTM),
+    pbRatio: num(km.pbRatioTTM) ?? div(marketCap, equity),
+    psRatio: num(km.priceToSalesRatioTTM) ?? div(marketCap, revenue),
+    evToEbitda: num(km.enterpriseValueOverEBITDATTM) ?? div(enterpriseValue, ebitda),
+    returnOnEquity: num(ra.returnOnEquityTTM) ?? div(num(inc.netIncome), equity),
+    returnOnAssets: num(ra.returnOnAssetsTTM) ?? div(num(inc.netIncome), num(bs.totalAssets)),
     beta: num(pr.beta),
-    dividendYield: num(km.dividendYieldTTM),
+    dividendYield:
+      num(km.dividendYieldTTM) ?? div(num(pr.lastDiv), num(qt.price) ?? num(pr.price)),
   };
 
   const income: IncomeStatement = {
-    revenue: num(inc.revenue),
+    revenue,
     grossProfit: num(inc.grossProfit),
     ebit: num(inc.operatingIncome),
-    ebitda: num(inc.ebitda),
+    ebitda,
     netIncome: num(inc.netIncome),
-    grossMargin: num(inc.grossProfitRatio),
-    operatingMargin: num(inc.operatingIncomeRatio),
-    netMargin: num(inc.netIncomeRatio),
+    grossMargin: num(inc.grossProfitRatio) ?? div(num(inc.grossProfit), revenue),
+    operatingMargin: num(inc.operatingIncomeRatio) ?? div(num(inc.operatingIncome), revenue),
+    netMargin: num(inc.netIncomeRatio) ?? div(num(inc.netIncome), revenue),
     revenueGrowth: num(gr.growthRevenue),
     earningsGrowth: num(gr.growthNetIncome),
   };
@@ -282,8 +309,8 @@ export async function fmpFinancials(symbol: string): Promise<FinancialsResponse>
     totalDebt,
     cashAndEquivalents: cash,
     netDebt,
-    debtToEquity: num(ra.debtEquityRatioTTM),
-    currentRatio: num(ra.currentRatioTTM),
+    debtToEquity: num(ra.debtEquityRatioTTM) ?? div(totalDebt, equity),
+    currentRatio: num(ra.currentRatioTTM) ?? div(num(bs.totalCurrentAssets), num(bs.totalCurrentLiabilities)),
     quickRatio: num(ra.quickRatioTTM),
   };
 
