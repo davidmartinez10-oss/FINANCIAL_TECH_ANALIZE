@@ -34,11 +34,29 @@ export async function GET(request: Request) {
       });
     } catch (err) {
       return Response.json(
-        { error: String((err as Error).message ?? err) },
+        { error: `FMP error: ${(err as Error).message ?? err}` },
         { status: 502 }
       );
     }
   }
+
+  // FMP no configurado: devolver error descriptivo antes de intentar Yahoo
+  // (Yahoo Finance bloquea IPs de datacenter/Vercel con 401/403).
+  return Response.json(
+    {
+      error:
+        "FMP_API_KEY no está configurada en este servidor. " +
+        "Agrégala en Vercel → tu proyecto → Settings → Environment Variables, " +
+        "selecciona los tres entornos (Production, Preview, Development) y redespliega. " +
+        "Verifica en /api/health que la variable llega al runtime.",
+      _debug: {
+        fmpEnabled: false,
+        nodeEnv: process.env.NODE_ENV,
+        keyLength: (process.env.FMP_API_KEY ?? "").length,
+      },
+    },
+    { status: 503 }
+  );
 
   try {
     const data = await fetchQuoteSummary(symbol);
@@ -111,8 +129,10 @@ export async function GET(request: Request) {
 
     const totalDebt = n(fd.totalDebt);
     const totalCash = n(fd.totalCash);
-    const netDebt =
-      totalDebt != null && totalCash != null ? totalDebt - totalCash : null;
+    const netDebt: number | null =
+      totalDebt != null && totalCash != null
+        ? (totalDebt as number) - (totalCash as number)
+        : null;
 
     const balanceSheet: BalanceSheet = {
       totalAssets: n(latestBS.totalAssets),
