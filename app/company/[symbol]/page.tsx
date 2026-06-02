@@ -231,11 +231,24 @@ export default function CompanyPage() {
 
       {/* Estados financieros en vivo (solo si la fuente respondió) */}
       {finError && (
-        <div className="note">
-          No se pudieron cargar los estados financieros en vivo de{" "}
-          <strong>{symbol}</strong>. Configura <code>FMP_API_KEY</code> en Vercel
-          para activarlos (Yahoo devuelve 401/403 desde servidores). Detalle:{" "}
-          {finError}
+        <div className="note fin-error-note">
+          {finError.includes("FMP_API_KEY no está configurada") ? (
+            <>
+              <strong>FMP_API_KEY no llega al servidor.</strong> Pasos para arreglarlo:
+              <ol style={{ margin: "8px 0 0", paddingLeft: 20, lineHeight: 1.8 }}>
+                <li>Ve a <strong>Vercel → tu proyecto → Settings → Environment Variables</strong></li>
+                <li>Agrega <code>FMP_API_KEY</code> con tu clave de financialmodelingprep.com</li>
+                <li>Marca los <strong>3 entornos</strong>: Production, Preview, Development</li>
+                <li>Guarda y redespliega (<strong>Deployments → ⋯ → Redeploy</strong>)</li>
+                <li>Verifica en <code>/api/health</code> que la clave llega y funciona</li>
+              </ol>
+            </>
+          ) : (
+            <>
+              Estados financieros de <strong>{symbol}</strong> no disponibles.{" "}
+              <span style={{ opacity: 0.7 }}>{finError}</span>
+            </>
+          )}
         </div>
       )}
 
