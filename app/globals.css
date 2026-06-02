@@ -674,6 +674,213 @@ section {
   backdrop-filter: blur(8px);
 }
 
+/* ── Pronóstico por acción (motor en vivo) ───────────────── */
+.asset-fc {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.afc-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.afc-sub {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  max-width: 640px;
+  line-height: 1.5;
+}
+
+.afc-chart-card {
+  padding: 18px 18px 12px;
+}
+
+.afc-chart-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.afc-price-label {
+  display: block;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+
+.afc-price {
+  font-family: var(--font-mono), monospace;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.afc-price small {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.afc-proj {
+  text-align: right;
+}
+
+.afc-price.up {
+  color: var(--green);
+}
+.afc-price.down {
+  color: var(--red);
+}
+
+/* Tarjetas por modelo */
+.afc-models {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .afc-models {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.afc-model {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.afc-model-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.afc-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  flex: none;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.afc-model-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.afc-weight {
+  margin-left: auto;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--r-sm);
+  padding: 2px 7px;
+}
+
+.afc-model-ret {
+  font-family: var(--font-mono), monospace;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.afc-model-ret.up {
+  color: var(--green);
+}
+.afc-model-ret.down {
+  color: var(--red);
+}
+
+.afc-model-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.afc-weight-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.afc-weight-bar > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+  transform-origin: left center;
+  transition: transform 0.7s var(--ease-out);
+}
+
+/* Panel de validación Monte Carlo */
+.afc-mc {
+  padding: 18px;
+}
+
+.afc-mc-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+
+.afc-mc-grid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+@media (max-width: 860px) {
+  .afc-mc-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .afc-mc-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.metric-sub {
+  font-size: 9.5px;
+  color: var(--muted);
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
+.afc-probs {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 24px;
+}
+
+@media (max-width: 560px) {
+  .afc-probs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.afc-disclaimer {
+  margin-top: 2px;
+}
+
 /* ── Skeletons ───────────────────────────────────────────── */
 .skeleton {
   background: linear-gradient(

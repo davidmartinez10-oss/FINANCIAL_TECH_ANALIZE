@@ -140,6 +140,25 @@ export async function fetchQuotes(
   return { quotes, errors };
 }
 
+// Histórico diario (cierres) para el motor de pronóstico por acción.
+export async function yahooDailyCloses(
+  symbol: string,
+  range = "1y",
+  interval = "1d"
+): Promise<{ t: number; c: number }[]> {
+  const path =
+    `/v8/finance/chart/${encodeURIComponent(symbol)}` +
+    `?range=${range}&interval=${interval}&includePrePost=false`;
+  const json = await fetchYF(path, 600);
+  const result = json?.chart?.result?.[0];
+  if (!result) throw new Error(`Yahoo sin histórico para ${symbol}`);
+  const timestamps: number[] = result.timestamp ?? [];
+  const closes: (number | null)[] = result.indicators?.quote?.[0]?.close ?? [];
+  return timestamps
+    .map((t, i) => ({ t, c: closes[i] }))
+    .filter((p): p is { t: number; c: number } => p.c != null && Number.isFinite(p.c) && p.c > 0);
+}
+
 // ── QuoteSummary (fundamentales de empresa) ────────────────────────────────
 
 export async function fetchQuoteSummary(symbol: string): Promise<any> {

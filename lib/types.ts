@@ -164,6 +164,33 @@ export interface AssetForecastResponse {
   forecast_data: AssetForecastEntry[];
 }
 
+// ── Live per-asset forecast (motor en vivo por acción) ─────────────────────
+export interface LiveModelForecast {
+  name: string;
+  forecast: number[];
+  weight: number;
+  backtestMAPE: number;
+}
+
+export interface LiveAssetForecast {
+  symbol: string;
+  name: string;
+  last_price: number;
+  horizon: number;
+  source: string; // "FMP" | "Yahoo"
+  asOf: string;
+  history: { t: number; c: number }[];
+  models: LiveModelForecast[];
+  ensemble_forecast: number[];
+  monte_carlo: MonteCarlo;
+  validity: {
+    direction_confidence: number;
+    band_calibration: number;
+    backtest_hit_rate: number;
+    backtest_mape: number;
+  };
+}
+
 // ── Macro Indicators ─────────────────────────────────────────────────────
 export interface MacroIndicator {
   symbol: string;

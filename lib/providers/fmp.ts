@@ -104,6 +104,26 @@ async function fetchSeries(symbol: string, range: string, interval: string): Pro
   }
 }
 
+// Histórico diario (cierres) para el motor de pronóstico por acción.
+export async function fmpDailyCloses(
+  symbol: string,
+  days = 260
+): Promise<{ t: number; c: number }[]> {
+  const data = await fmpGet(
+    `/historical-price-full/${encodeURIComponent(symbol)}?serietype=line&timeseries=${days}`,
+    600
+  );
+  const hist: any[] = data?.historical ?? [];
+  return hist
+    .slice(0, days)
+    .reverse()
+    .map((r) => ({
+      t: Math.floor(new Date(r.date + "T00:00:00Z").getTime() / 1000),
+      c: Number(r.close),
+    }))
+    .filter((p) => Number.isFinite(p.c) && p.c > 0);
+}
+
 // ── Cotizaciones ────────────────────────────────────────────────────────────
 
 export async function fmpFetchQuotes(
