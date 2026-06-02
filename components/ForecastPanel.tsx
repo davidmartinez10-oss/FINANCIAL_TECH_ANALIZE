@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  AreaChart,
+  ComposedChart,
   Area,
   Line,
   XAxis,
@@ -12,6 +12,8 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { ForecastResults, PortfolioForecast } from "@/lib/types";
+import { buildForecastSeries } from "@/lib/forecast";
+import HorizonTabs from "@/components/HorizonTabs";
 
 const PROB_LABELS: Record<string, string> = {
   P_positivo: "Prob. retorno positivo",
@@ -24,87 +26,84 @@ function pct(x: number) {
   return `${(x * 100).toFixed(1)}%`;
 }
 
-function ForecastChart({ p }: { p: PortfolioForecast }) {
-  const P0 = p.ensemble.last_price;
-  const fc = p.ensemble_forecast;
-  const p5 = p.monte_carlo.bands["P5"];
-  const p95 = p.monte_carlo.bands["P95"];
-  const p50 = p.monte_carlo.bands["P50"];
-
-  // Construye la serie: día 0 = precio actual, luego horizonte de forecast.
-  // Las bandas MC se interpolan linealmente desde P0 hasta los percentiles
-  // terminales para dar una envolvente de incertidumbre creciente.
-  const H = fc.length;
-  const data = [{ d: 0, ens: P0, lo: P0, hi: P0 }];
-  for (let i = 0; i < H; i++) {
-    const frac = (i + 1) / H;
-    data.push({
-      d: i + 1,
-      ens: fc[i],
-      lo: P0 + (p5 - P0) * frac,
-      hi: P0 + (p95 - P0) * frac,
-    });
-  }
+function ForecastChart({ p, horizon }: { p: PortfolioForecast; horizon: number }) {
+  const { data } = buildForecastSeries(
+    p.ensemble.last_price,
+    p.ensemble_forecast,
+    p.monte_carlo.bands,
+    horizon
+  );
+  // hi = lo + outer (upper bound of uncertainty band)
+  const chartData = data.map((pt) => ({ ...pt, hi: pt.lo + pt.outer }));
 
   return (
-    <ResponsiveContainer width="100%" height={170}>
-      <AreaChart data={data} margin={{ top: 6, right: 8, left: -18, bottom: 0 }}>
-        <CartesianGrid stroke="#262a35" strokeDasharray="2 4" />
+    <ResponsiveContainer width="100%" height={180}>
+      <ComposedChart data={chartData} margin={{ top: 8, right: 10, left: -16, bottom: 0 }}>
+        <defs>
+          <linearGradient id="bandGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#4c8dff" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="#4c8dff" stopOpacity={0.08} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="2 5" vertical={false} />
         <XAxis
           dataKey="d"
           tick={{ fill: "#8b90a0", fontSize: 10 }}
           tickLine={false}
-          label={{ value: "días", position: "insideBottomRight", fill: "#8b90a0", fontSize: 10 }}
+          axisLine={false}
+          interval="preserveStartEnd"
         />
         <YAxis
           tick={{ fill: "#8b90a0", fontSize: 10 }}
           tickLine={false}
+          axisLine={false}
           domain={["auto", "auto"]}
           width={48}
+          tickFormatter={(v) => `$${Math.round(v)}`}
         />
         <Tooltip
           contentStyle={{
-            background: "#14161c",
-            border: "1px solid #262a35",
-            borderRadius: 8,
+            background: "rgba(20,22,28,0.92)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: 10,
             fontSize: 12,
+            backdropFilter: "blur(8px)",
           }}
           labelFormatter={(d) => `Día +${d}`}
-          formatter={(v: number, n) => [
-            v.toFixed(2),
-            n === "ens" ? "Ensamble" : n === "hi" ? "P95 (MC)" : "P5 (MC)",
-          ]}
+          formatter={(v: number, n) => {
+            if (n === "ens") return [`$${v.toFixed(2)}`, "Ensamble"];
+            return null as unknown as [string, string];
+          }}
         />
-        <Area
-          dataKey="hi"
-          stroke="none"
-          fill="#4c8dff"
-          fillOpacity={0.08}
-          isAnimationActive={false}
-        />
-        <Area
-          dataKey="lo"
-          stroke="none"
-          fill="#0a0b0e"
-          fillOpacity={1}
-          isAnimationActive={false}
-        />
-        <Line
-          dataKey="ens"
-          stroke="#2ec16e"
-          strokeWidth={2}
-          dot={false}
-          isAnimationActive={false}
-        />
-      </AreaChart>
+        {/* hi area with gradient — renders behind (full band from baseline to hi) */}
+        <Area dataKey="hi" stroke="none" fill="url(#bandGrad)" legendType="none" isAnimationActive={false} />
+        {/* lo area covers baseline-to-lo with card color, leaving only the band visible */}
+        <Area dataKey="lo" stroke="none" fill="#14161c" legendType="none" isAnimationActive={false} />
+        {/* Ensemble line on top */}
+        <Line type="monotone" dataKey="ens" stroke="#2ec16e" strokeWidth={2.5} dot={false} isAnimationActive={false} />
+      </ComposedChart>
     </ResponsiveContainer>
   );
 }
 
-function PortfolioCard({ name, p }: { name: string; p: PortfolioForecast }) {
+function PortfolioCard({
+  name,
+  p,
+  horizon,
+}: {
+  name: string;
+  p: PortfolioForecast;
+  horizon: number;
+}) {
   const mc = p.monte_carlo;
-  const up = mc.ensemble_return_pct >= 0;
   const probs = mc.probabilities;
+  const series = buildForecastSeries(
+    p.ensemble.last_price,
+    p.ensemble_forecast,
+    p.monte_carlo.bands,
+    horizon
+  );
+  const up = series.endpointReturnPct >= 0;
 
   return (
     <div className="card fc-card">
@@ -113,22 +112,29 @@ function PortfolioCard({ name, p }: { name: string; p: PortfolioForecast }) {
         <span className="badge">Sharpe {p.composition.sharpe.toFixed(2)}</span>
       </div>
 
-      <ForecastChart p={p} />
+      <ForecastChart p={p} horizon={horizon} />
+
+      {series.isExtrapolated && (
+        <div className="fc-extrap-tag">
+          Pronóstico del modelo: {series.modelHorizon}d · más allá = proyección
+          extendida (extrapolación)
+        </div>
+      )}
 
       <div className="metrics">
         <div className="metric">
-          <div className="label">Ensamble {p.ensemble.horizon}d</div>
+          <div className="label">Ensamble {horizon}d</div>
           <div className={`val ${up ? "up" : "down"}`}>
             {up ? "+" : ""}
-            {mc.ensemble_return_pct.toFixed(2)}%
+            {series.endpointReturnPct.toFixed(2)}%
           </div>
         </div>
         <div className="metric">
-          <div className="label">VaR 95%</div>
+          <div className="label">VaR 95% · 21d</div>
           <div className="val down">{mc.VaR_95_pct.toFixed(1)}%</div>
         </div>
         <div className="metric">
-          <div className="label">CVaR 95%</div>
+          <div className="label">CVaR 95% · 21d</div>
           <div className="val down">{mc.CVaR_95_pct.toFixed(1)}%</div>
         </div>
       </div>
@@ -141,7 +147,9 @@ function PortfolioCard({ name, p }: { name: string; p: PortfolioForecast }) {
               <span>{pct(probs[k])}</span>
             </div>
             <div className="bar">
-              <span style={{ width: `${Math.min(100, probs[k] * 100)}%` }} />
+              <span
+                style={{ transform: `scaleX(${Math.min(1, Math.max(0, probs[k]))})` }}
+              />
             </div>
           </div>
         ) : null
@@ -167,6 +175,7 @@ function PortfolioCard({ name, p }: { name: string; p: PortfolioForecast }) {
 
 export default function ForecastPanel() {
   const [data, setData] = useState<ForecastResults | null>(null);
+  const [horizon, setHorizon] = useState(21); // Mes por defecto
 
   useEffect(() => {
     fetch("/api/forecast")
@@ -194,12 +203,15 @@ export default function ForecastPanel() {
     <section>
       <h2 className="section-title">
         Pronósticos ensamblados (Prophet · ARIMAX · XGBoost · Holt-Winters) ·{" "}
-        {data.meta.n_sims.toLocaleString()} simulaciones Monte Carlo · horizonte{" "}
-        {data.meta.horizon_days}d
+        {data.meta.n_sims.toLocaleString()} simulaciones Monte Carlo
       </h2>
+      <div className="fc-toolbar">
+        <span className="fc-toolbar-label">Horizonte del pronóstico</span>
+        <HorizonTabs value={horizon} onChange={setHorizon} />
+      </div>
       <div className="fc-grid">
         {Object.entries(data.portfolios).map(([name, p]) => (
-          <PortfolioCard key={name} name={name} p={p} />
+          <PortfolioCard key={name} name={name} p={p} horizon={horizon} />
         ))}
       </div>
       {data.meta.data_mode === "synthetic" && (

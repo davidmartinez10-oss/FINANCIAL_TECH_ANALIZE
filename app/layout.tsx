@@ -1,5 +1,21 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import Nav from "@/components/Nav";
 import "./globals.css";
+
+const sans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+  weight: ["400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: "Macro Markets · Análisis de Inversión",
@@ -13,8 +29,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body>{children}</body>
+    <html lang="es" className={`${sans.variable} ${mono.variable}`}>
+      <body>
+        {/* Capa de textura ambiental fija (grano + orbes) */}
+        <div className="ambient" aria-hidden="true" />
+        <div className="grain" aria-hidden="true" />
+        <Nav />
+        {children}
+      </body>
     </html>
   );
 }
