@@ -4,10 +4,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Diagnóstico: confirma si las variables de entorno llegan al runtime SIN
-// exponer su valor (solo presencia + longitud + prefijo de la clave Anthropic).
+// exponer su valor (solo presencia + longitud + prefijo de las claves).
 export async function GET() {
   const fmp = process.env.FMP_API_KEY ?? "";
-  const anthropic = process.env.ANTHROPIC_API_KEY ?? "";
+  const groq = process.env.GROQ_API_KEY ?? "";
 
   // Prueba en vivo de FMP (1 cotización) para confirmar que la key es válida.
   let fmpLive: { ok: boolean; detail: string } = { ok: false, detail: "no probado" };
@@ -39,10 +39,10 @@ export async function GET() {
           present: !!fmp,
           length: fmp.length,
         },
-        ANTHROPIC_API_KEY: {
-          present: !!anthropic,
-          length: anthropic.length,
-          validPrefix: anthropic.startsWith("sk-ant-"),
+        GROQ_API_KEY: {
+          present: !!groq,
+          length: groq.length,
+          validPrefix: groq.startsWith("gsk_"),
         },
       },
       fmpLiveCheck: fmpLive,

@@ -1,7 +1,28 @@
-import Anthropic from "@anthropic-ai/sdk";
+// ─────────────────────────────────────────────────────────────────────────
+// Asistente IA — orquestador multi-agente impulsado por GROQ.
+//
+// GROQ expone una API compatible con OpenAI (chat/completions con streaming
+// SSE), así que se consume con `fetch` nativo sin SDK adicional. Es muy rápido
+// (inferencia en LPU) y funciona desde IPs de datacenter/Vercel.
+//
+// Requiere GROQ_API_KEY en variables de entorno. El modelo se puede ajustar
+// con GROQ_MODEL (por defecto llama-3.3-70b-versatile).
+// ─────────────────────────────────────────────────────────────────────────
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+
+// Resumen de la plataforma inyectado como contexto (antes era un tool).
+const PLATFORM_CONTEXT = `Datos actuales de la plataforma:
+- Portafolios: Min Volatilidad, Volatilidad Media, Máximo Riesgo
+- Activos cubiertos: NVDA (NVIDIA, semiconductores/IA), MSFT (Microsoft, software/nube), GOOGL (Google/Alphabet, internet/IA), SOXX (ETF semiconductores iShares), SMH (ETF semiconductores VanEck), TAN (ETF solar Invesco), NLR (ETF nuclear/uranio VanEck), URNM (ETF minería uranio Sprott), SPY (SPDR S&P 500), QQQ (Invesco Nasdaq-100)
+- Modelos de pronóstico: Prophet, ARIMAX, XGBoost, Holt-Winters (ensamblados)
+- Validación: 10,000 simulaciones Monte Carlo
+- Horizonte base: 21 días hábiles (~1 mes), configurable
+- Regiones macro: Estados Unidos, China, Unión Europea, Rusia, Colombia, América Latina`;
 
 const SYSTEM_PROMPT = `Eres el Orquestador de Macro Markets, una plataforma de análisis financiero que cubre:
 - Pronósticos de portafolios (Min Volatilidad, Volatilidad Media, Máximo Riesgo) con modelos ensamblados Prophet, ARIMAX, XGBoost y Holt-Winters validados con 10,000 simulaciones Monte Carlo
@@ -22,149 +43,113 @@ Tienes acceso a tres agentes especializados que debes invocar según el tipo de 
 
 IMPORTANTE: Siempre identifícate al inicio como uno de los agentes. Formato: "**[Nombre del agente]**: [respuesta]"
 Si la pregunta involucra múltiples dominios, puedes combinar perspectivas pero elige el agente principal.
-Responde siempre en español. Sé conciso pero completo. Máximo 400 palabras por respuesta.`;
+Responde siempre en español. Sé conciso pero completo. Máximo 400 palabras por respuesta.
 
-const TOOLS: Anthropic.Tool[] = [
-  {
-    name: "get_platform_summary",
-    description:
-      "Obtiene un resumen de los datos actuales de la plataforma: portafolios, activos, condiciones de mercado.",
-    input_schema: {
-      type: "object" as const,
-      properties: {},
-      required: [],
-    },
-  },
-];
+${PLATFORM_CONTEXT}`;
 
-async function handleToolCall(
-  toolName: string,
-  _toolInput: Record<string, unknown>
-): Promise<string> {
-  if (toolName === "get_platform_summary") {
-    return JSON.stringify({
-      portfolios: ["Min Volatilidad", "Volatilidad Media", "Máximo Riesgo"],
-      assets: [
-        "NVDA (NVIDIA) - Semiconductores/IA",
-        "MSFT (Microsoft) - Software/Nube",
-        "GOOGL (Google) - Internet/IA",
-        "SOXX - ETF Semiconductores iShares",
-        "SMH - ETF Semiconductores VanEck",
-        "TAN - ETF Solar Invesco",
-        "NLR - ETF Nuclear/Uranio VanEck",
-        "URNM - ETF Minería Uranio Sprott",
-        "SPY - SPDR S&P 500 ETF",
-        "QQQ - Invesco Nasdaq-100 ETF",
-      ],
-      models: ["Prophet", "ARIMAX", "XGBoost", "Holt-Winters"],
-      horizon: "21 días hábiles (aprox. 1 mes)",
-      simulations: "10,000 Monte Carlo",
-      macro_regions: [
-        "Estados Unidos",
-        "China",
-        "Unión Europea",
-        "Rusia",
-        "Colombia",
-        "América Latina",
-      ],
-    });
-  }
-  return "{}";
+type ChatRole = "user" | "assistant" | "system";
+interface InMsg {
+  role: string;
+  content: string;
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     return Response.json(
       {
         error:
-          "ANTHROPIC_API_KEY no configurada. Agrégala en las variables de entorno de Vercel.",
+          "GROQ_API_KEY no configurada. Agrégala en Vercel → Settings → " +
+          "Environment Variables (los 3 entornos) y redespliega. " +
+          "Obtén tu clave gratis en https://console.groq.com/keys",
       },
       { status: 503 }
     );
   }
 
-  let body: { messages: { role: string; content: string }[] };
+  let body: { messages: InMsg[] };
   try {
     body = await request.json();
   } catch {
     return Response.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const userMessages = (body.messages ?? []).filter(
-    (m) => m.role === "user" || m.role === "assistant"
-  );
+  const history = (body.messages ?? [])
+    .filter((m) => m.role === "user" || m.role === "assistant")
+    .map((m) => ({ role: m.role as ChatRole, content: m.content }));
 
-  if (!userMessages.length) {
+  if (!history.length) {
     return Response.json({ error: "messages vacío" }, { status: 400 });
   }
 
-  const client = new Anthropic({ apiKey });
-
+  const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
   const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
 
   const stream = new ReadableStream({
     async start(controller) {
       const enqueue = (data: object) =>
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify(data)}\n\n`)
-        );
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
 
       try {
-        const messages: Anthropic.MessageParam[] = userMessages.map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-        }));
-
-        // Agentic loop: allow up to 3 rounds for tool calls
-        let currentMessages = [...messages];
-        for (let round = 0; round < 3; round++) {
-          const response = await client.messages.create({
-            model: "claude-opus-4-8",
+        const upstream = await fetch(GROQ_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: "system", content: SYSTEM_PROMPT },
+              ...history,
+            ],
+            temperature: 0.6,
             max_tokens: 1024,
-            thinking: { type: "adaptive" },
-            system: SYSTEM_PROMPT,
-            messages: currentMessages,
-            tools: TOOLS,
-          });
+            stream: true,
+          }),
+        });
 
-          // Stream text content
-          for (const block of response.content) {
-            if (block.type === "text") {
-              // Stream word by word for smooth UX
-              const words = block.text.split(" ");
-              for (const word of words) {
-                enqueue({ text: word + " " });
-                await new Promise((r) => setTimeout(r, 15));
-              }
+        if (!upstream.ok || !upstream.body) {
+          const detail = await upstream.text().catch(() => "");
+          let msg = `GROQ HTTP ${upstream.status}`;
+          try {
+            const j = JSON.parse(detail);
+            msg = j?.error?.message ?? msg;
+          } catch {
+            /* texto plano */
+          }
+          enqueue({ error: msg });
+          enqueue({ done: true });
+          controller.close();
+          return;
+        }
+
+        // GROQ devuelve SSE estilo OpenAI: data: {choices:[{delta:{content}}]}
+        const reader = upstream.body.getReader();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? ""; // conservar línea incompleta
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data:")) continue;
+            const payload = trimmed.slice(5).trim();
+            if (payload === "[DONE]") continue;
+            try {
+              const json = JSON.parse(payload);
+              const delta: string = json?.choices?.[0]?.delta?.content ?? "";
+              if (delta) enqueue({ text: delta });
+            } catch {
+              /* fragmento incompleto, se ignora */
             }
           }
-
-          if (response.stop_reason !== "tool_use") break;
-
-          // Handle tool calls
-          const toolUseBlocks = response.content.filter(
-            (b) => b.type === "tool_use"
-          ) as Anthropic.ToolUseBlock[];
-
-          if (!toolUseBlocks.length) break;
-
-          const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
-            toolUseBlocks.map(async (tu) => ({
-              type: "tool_result" as const,
-              tool_use_id: tu.id,
-              content: await handleToolCall(
-                tu.name,
-                tu.input as Record<string, unknown>
-              ),
-            }))
-          );
-
-          currentMessages = [
-            ...currentMessages,
-            { role: "assistant" as const, content: response.content },
-            { role: "user" as const, content: toolResults },
-          ];
         }
 
         enqueue({ done: true });
