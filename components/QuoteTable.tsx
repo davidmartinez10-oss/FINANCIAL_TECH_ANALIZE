@@ -20,7 +20,7 @@ export function Delta({ v, decimals = 2, suffix = " %" }: { v: number | null; de
 
 function Spark({ q }: { q: CommodityQuote }) {
   const pts = q.series;
-  if (pts.length < 5) return <span className="qt-flat">—</span>;
+  if (pts.length < 4) return <span className="qt-flat">—</span>;
   const W = 96;
   const H = 26;
   const vals = pts.map((p) => p.c);

@@ -7,7 +7,8 @@
 // ─────────────────────────────────────────────────────────────────────────
 import { loadDailyQuotes, type QuoteDef } from "@/lib/quotes";
 import { fetchFredSeries } from "@/lib/providers/fred";
-import type { KeyIndicatorsResponse, CommodityQuote } from "@/lib/types";
+import marketJson from "@/data/steel_market.json";
+import type { KeyIndicatorsResponse, CommodityQuote, SteelPrices } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -72,6 +73,42 @@ async function coalRow(): Promise<CommodityQuote> {
   };
 }
 
+// Coque y carbón colombianos (FOB): cifras mensuales del boletín UPME-ANM,
+// guardadas en data/steel_market.json. No hay API: se actualizan a mano.
+function colombiaFobRows(): CommodityQuote[] {
+  const { fob } = (marketJson as unknown as { prices: SteelPrices }).prices;
+  const ts = (ym: string) => Math.floor(Date.parse(`${ym}-01T00:00:00Z`) / 1000);
+  return fob.series.flatMap((s) => {
+    const pts = s.values
+      .map((v, i) => ({ t: ts(fob.months[i]), c: v }))
+      .filter((p): p is { t: number; c: number } => p.c != null);
+    if (pts.length === 0) return [];
+    const last = pts[pts.length - 1];
+    const prev = pts[pts.length - 2];
+    const pct = prev ? ((last.c - prev.c) / prev.c) * 100 : 0;
+    return [
+      {
+        symbol: `CO-FOB-${s.id}`,
+        name: `${s.name} · FOB Colombia`,
+        group: G.energy,
+        unit: fob.unit,
+        price: last.c,
+        change: prev ? last.c - prev.c : 0,
+        changePct: pct,
+        change1mPct: pct,
+        change3mPct: null,
+        asOf: last.t,
+        stale: false,
+        source: "UPME-ANM",
+        series: pts,
+        hi52: null,
+        lo52: null,
+        frequency: "M" as const,
+      },
+    ];
+  });
+}
+
 export async function GET() {
   const [{ quotes, errors }, coal] = await Promise.all([
     loadDailyQuotes(DEFS),
@@ -87,6 +124,11 @@ export async function GET() {
     const i = rows.findIndex((r) => r.symbol === "HRC=F");
     rows.splice(i === -1 ? rows.length : i, 0, coal);
   }
+
+  // Coque y carbón colombianos: después del carbón de referencia internacional.
+  const fobRows = colombiaFobRows();
+  const j = rows.findIndex((r) => r.symbol === "HRC=F");
+  rows.splice(j === -1 ? rows.length : j, 0, ...fobRows);
 
   const body: KeyIndicatorsResponse = {
     asOf: new Date().toISOString(),

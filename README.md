@@ -152,6 +152,14 @@ Dos capas de datos:
   producción nacional de acero, coque o gases industriales: **este archivo se
   actualiza a mano** cuando Camacero, ANDI, Fenalcarbón, DANE o la UPME
   publican cifras nuevas. El campo `asOf` es la fecha de corte que ve el usuario.
+- **Precios de coque, carbón y minerales:** no hay futuros públicos diarios de
+  coque, carbón coquizable ni chatarra, así que la página combina tres
+  referencias: precio FOB mensual de Colombia (boletín *Minería en cifras* de
+  UPME-ANM), precios base de la UPME para regalías (COP/t, por resolución) y el
+  valor unitario del comercio exterior (USD/t = valor / peso de Comtrade,
+  calculado en `/api/steel`). Las dos primeras viven en `prices` dentro de
+  `data/steel_market.json` y se actualizan a mano: el boletín sale cada mes y
+  las resoluciones de carbón y minerales metálicos, cada trimestre.
 
 ---
 

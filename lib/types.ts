@@ -326,6 +326,8 @@ export interface TradeRow {
   exportsUsd: Record<string, number | null>; // año → USD FOB
   importsKg: number | null; // último año
   exportsKg: number | null; // último año
+  importsUsdPerTon: number | null; // valor unitario del último año (si hay peso)
+  exportsUsdPerTon: number | null;
 }
 
 export interface TradeOrigin {
@@ -373,8 +375,38 @@ export interface SteelSource {
   url: string;
 }
 
+export interface SteelFobSeries {
+  id: string;
+  name: string;
+  values: (number | null)[]; // una por mes de `months`
+  roundedUntil?: string; // YYYY-MM: hasta ese mes la fuente solo publica enteros
+}
+
+export interface SteelBasePrice {
+  group: string;
+  product: string;
+  cop: number; // COP por tonelada
+  prevCop: number | null; // período anterior
+  period: string;
+  sourceId: string;
+}
+
+export interface SteelPrices {
+  fob: {
+    unit: string;
+    sourceId: string;
+    note: string;
+    months: string[]; // YYYY-MM
+    series: SteelFobSeries[];
+  };
+  trm: number; // COP por USD usada por la UPME
+  base: SteelBasePrice[];
+  baseNote: string;
+}
+
 export interface SteelMarket {
   asOf: string;
+  prices: SteelPrices;
   kpis: SteelFigure[];
   globalFacts: SteelFigure[];
   nationalFacts: SteelFigure[];
