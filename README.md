@@ -86,11 +86,25 @@ generador sintético (GBM correlacionado) para que el pipeline corra igual.
 |--------|----------------------------------------|-------------|
 | GET    | `/api/quote?symbols=NVDA,MSFT&range=1d&interval=5m` | Cotizaciones en vivo (máx. 20 símbolos) |
 | GET    | `/api/forecast`                        | Ensamble + Monte Carlo de las 3 carteras |
+| GET    | `/api/indicators`                      | Indicadores clave: mercados y riesgo, Colombia, energía y acero, portafolio (alimenta la cinta superior y el panel del Dashboard) |
 | GET    | `/api/commodities`                     | Petróleo, gas, acero HRC, mineral de hierro y acciones del sector (diario) + carbón, mineral, Brent, gas Europa e IPP del acero (mensual) |
 | GET    | `/api/gdp`                             | PIB de Colombia frente a EE.UU., China, UE, Japón, Alemania, India, Reino Unido, Rusia, Brasil y México |
 | GET    | `/api/steel`                           | Comercio exterior de Colombia por partida arancelaria + mercado siderúrgico curado |
 
 ---
+
+## Diseño: portal de datos
+
+La interfaz sigue las convenciones de un portal financiero: barra superior a
+todo el ancho, cinta de cotizaciones en todas las páginas y tablas densas
+(`components/QuoteTable.tsx`) con último precio, variación absoluta y
+porcentual, variación a un mes, rango de 52 semanas y tendencia. Las
+variaciones llevan signo y flecha además del color.
+
+El **panel de indicadores clave** (`components/KeyIndicators.tsx`, en el
+Dashboard) agrupa 18 series en cuatro pestañas: Mercados, Colombia, Energía y
+acero, y Portafolio. Para cambiar qué se muestra, edita `DEFS` en
+`app/api/indicators/route.ts`.
 
 ## Módulo Macro: commodities y PIB
 

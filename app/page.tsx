@@ -1,6 +1,7 @@
 import Link from "next/link";
 import QuoteGrid from "@/components/QuoteGrid";
 import ForecastPanel from "@/components/ForecastPanel";
+import KeyIndicators from "@/components/KeyIndicators";
 
 export default function Home() {
   return (
@@ -9,10 +10,15 @@ export default function Home() {
         <div>
           <h1>Dashboard · Macro Markets</h1>
           <div className="sub">
-            Mercado en tiempo real · Pronósticos ensamblados · Monte Carlo 10.000 sims
+            Indicadores clave · Mercado en tiempo real · Pronósticos ensamblados
           </div>
         </div>
       </header>
+
+      <section>
+        <h2 className="section-title">Indicadores clave</h2>
+        <KeyIndicators />
+      </section>
 
       {/* Quick nav cards */}
       <div className="quick-nav">

@@ -7,7 +7,7 @@
   /* Base OLED tintada (azul frío, no negro puro) */
   --bg: #06070a;
   --bg-2: #090b10;
-  --panel: rgba(22, 25, 33, 0.72);
+  --panel: rgba(17, 20, 27, 0.94);
   --panel-solid: #14161c;
   --panel-2: rgba(31, 35, 46, 0.6);
   --hairline: rgba(255, 255, 255, 0.08);
@@ -35,10 +35,10 @@
   --inner-hl: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
   /* Radios concéntricos */
-  --r-xl: 22px;
-  --r-lg: 16px;
-  --r-md: 12px;
-  --r-sm: 8px;
+  --r-xl: 12px;
+  --r-lg: 8px;
+  --r-md: 6px;
+  --r-sm: 4px;
 
   /* Curvas ease-out exponenciales (deceleración natural, sin rebote) */
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
@@ -2228,5 +2228,399 @@ footer {
   }
   .cm-bench-stats {
     gap: 16px;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Portal financiero: densidad de datos, superficies planas, tablas
+   (estas reglas ajustan el sistema anterior; van al final a propósito)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Fondo más sobrio: los datos mandan */
+.ambient {
+  opacity: 0.45;
+}
+
+.card,
+.company-card,
+.qnav-card,
+.region-card,
+.news-card,
+.stat-card,
+.fc-card {
+  animation-duration: 0.25s;
+  backdrop-filter: none;
+}
+
+.container {
+  padding-top: 28px;
+}
+
+header.topbar {
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+}
+
+.topbar h1 {
+  font-size: clamp(22px, 3vw, 28px);
+}
+
+section {
+  margin-bottom: 36px;
+}
+
+.section-title {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+/* ── Barra superior a todo el ancho ──────────────────────── */
+.navbar {
+  top: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  height: 50px;
+  padding: 0 max(24px, calc((100% - 1300px) / 2 + 24px));
+  gap: 28px;
+  background: #0b0d12;
+  border: none;
+  border-bottom: 1px solid var(--hairline-strong);
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.nav-links {
+  height: 100%;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 14px;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-link.active {
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  border-bottom-color: var(--accent);
+}
+
+/* ── Cinta de cotizaciones ───────────────────────────────── */
+.ticker {
+  background: #0e1117;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 12px;
+}
+
+.ticker-inner {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  height: 34px;
+  padding: 0 max(24px, calc((100% - 1300px) / 2 + 24px));
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.ticker-inner::-webkit-scrollbar,
+.nav-links::-webkit-scrollbar {
+  display: none;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.ticker-name {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.ticker-price,
+.ticker .qt-delta {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.ticker-price {
+  color: var(--text);
+}
+
+.ticker .qt-delta {
+  font-size: 11.5px;
+}
+
+.ticker-empty {
+  color: var(--muted);
+}
+
+/* ── Panel con pestañas ──────────────────────────────────── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 16px;
+  border-bottom: 1px solid var(--hairline-strong);
+  padding: 0 14px 0 6px;
+  flex-wrap: wrap;
+}
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 12px 14px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tab.active {
+  color: #fff;
+  border-bottom-color: var(--accent);
+}
+
+.panel-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--muted);
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.panel-foot {
+  padding: 10px 14px;
+  font-size: 11.5px;
+  color: var(--muted);
+  border-top: 1px solid var(--hairline);
+}
+
+/* ── Tabla densa de cotizaciones ─────────────────────────── */
+.qt-scroll {
+  overflow-x: auto;
+}
+
+.qt {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.qt th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--hairline);
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.qt td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.qt tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.qt tbody tr:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.qt .num {
+  text-align: right;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.qt th.num {
+  font-family: inherit;
+}
+
+.qt-name {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.qt-sub {
+  display: block;
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.qt-tag {
+  margin-left: 6px;
+  padding: 0 5px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 3px;
+  font-size: 9.5px;
+  color: var(--text-dim);
+}
+
+.qt-last {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.qt-delta.up {
+  color: var(--green);
+}
+
+.qt-delta.down {
+  color: var(--red);
+}
+
+.qt-delta > span {
+  font-size: 0.7em;
+}
+
+.qt-flat,
+.qt-time {
+  color: var(--muted);
+}
+
+.qt-time {
+  font-size: 11.5px;
+}
+
+.qt-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.qt-range-lo,
+.qt-range-hi {
+  min-width: 50px;
+}
+
+.qt-range-lo {
+  text-align: right;
+}
+
+.qt-range-track {
+  position: relative;
+  width: 84px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.qt-range-dot {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text);
+  border: 2px solid #11141b;
+  box-sizing: content-box;
+  transform: translate(-50%, -50%);
+}
+
+.qt-spark {
+  display: block;
+}
+
+/* Pestañas tipo píldora heredadas: más sobrias */
+.sector-tab {
+  border-radius: var(--r-md);
+  padding: 6px 12px;
+  font-size: 12.5px;
+  backdrop-filter: none;
+}
+
+.sector-tab:hover {
+  transform: none;
+}
+
+.sector-tab.active {
+  box-shadow: none;
+}
+
+.region-card:hover,
+.qnav-card:hover {
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  .qt-col-range,
+  .qt-col-spark {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .qt-col-abs {
+    display: none;
+  }
+  .qt th,
+  .qt td {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .ticker-inner {
+    padding: 0 12px;
   }
 }

@@ -9,27 +9,14 @@
 // Cada fuente falla de forma independiente: lo que no responde se informa en
 // `errors` y el resto se entrega igual.
 // ─────────────────────────────────────────────────────────────────────────
-import { fetchDailyQuote } from "@/lib/providers/yahoo";
-import { fmpEnabled, fmpBatchQuote } from "@/lib/providers/fmp";
+import { loadDailyQuotes, type QuoteDef } from "@/lib/quotes";
 import { fetchFredSeries } from "@/lib/providers/fred";
-import type {
-  CommoditiesResponse,
-  CommodityQuote,
-  BenchmarkSeries,
-} from "@/lib/types";
+import type { CommoditiesResponse, BenchmarkSeries } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-interface Def {
-  symbol: string; // Yahoo
-  fmp?: string;
-  name: string;
-  group: string;
-  unit: string;
-}
-
-const DAILY: Def[] = [
+const DAILY: QuoteDef[] = [
   { symbol: "CL=F", fmp: "CLUSD", name: "Petróleo WTI", group: "Energía y acero", unit: "USD/barril" },
   { symbol: "BZ=F", fmp: "BZUSD", name: "Petróleo Brent", group: "Energía y acero", unit: "USD/barril" },
   { symbol: "NG=F", fmp: "NGUSD", name: "Gas natural Henry Hub", group: "Energía y acero", unit: "USD/MMBtu" },
@@ -56,71 +43,8 @@ const pct = (now: number, base: number | undefined) =>
   base && base > 0 ? ((now - base) / base) * 100 : null;
 
 export async function GET() {
-  const errors: string[] = [];
-
   // ── Diarios ────────────────────────────────────────────────────────────
-  const settled = await Promise.allSettled(
-    DAILY.map((d) => fetchDailyQuote(d.symbol))
-  );
-  const quotes: CommodityQuote[] = [];
-  const missing: Def[] = [];
-
-  settled.forEach((r, i) => {
-    const d = DAILY[i];
-    if (r.status === "fulfilled") {
-      const q = r.value;
-      quotes.push({
-        symbol: d.symbol,
-        name: d.name,
-        group: d.group,
-        unit: d.unit,
-        price: q.price,
-        changePct: q.changePct,
-        change1mPct: q.change1mPct,
-        change3mPct: q.change3mPct,
-        asOf: q.asOf,
-        stale: q.stale,
-        source: "Yahoo",
-        series: q.series,
-      });
-    } else {
-      missing.push(d);
-    }
-  });
-
-  // Respaldo FMP para lo que Yahoo no entregó.
-  if (missing.length > 0 && fmpEnabled()) {
-    const withFmp = missing.filter((d) => d.fmp);
-    const map = await fmpBatchQuote(withFmp.map((d) => d.fmp!));
-    for (const d of withFmp) {
-      const v = map.get(d.fmp!);
-      if (!v || !(v.price > 0)) continue;
-      quotes.push({
-        symbol: d.symbol,
-        name: d.name,
-        group: d.group,
-        unit: d.unit,
-        price: v.price,
-        changePct: v.changePct,
-        change1mPct: null,
-        change3mPct: null,
-        asOf: Math.floor(Date.now() / 1000),
-        stale: false,
-        source: "FMP",
-        series: [],
-      });
-    }
-  }
-  const got = new Set(quotes.map((q) => q.symbol));
-  DAILY.filter((d) => !got.has(d.symbol)).forEach((d) =>
-    errors.push(`${d.name} (${d.symbol}): sin datos del proveedor`)
-  );
-  // Orden estable según la definición.
-  quotes.sort(
-    (a, b) =>
-      DAILY.findIndex((d) => d.symbol === a.symbol) -
-      DAILY.findIndex((d) => d.symbol === b.symbol)
-  );
+  const { quotes, errors } = await loadDailyQuotes(DAILY);
 
   // ── Mensuales (FRED) ───────────────────────────────────────────────────
   const fred = await Promise.allSettled(MONTHLY.map((m) => fetchFredSeries(m.id)));

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import Nav from "@/components/Nav";
+import TickerBar from "@/components/TickerBar";
 import "./globals.css";
 
 const sans = Plus_Jakarta_Sans({
@@ -35,6 +36,7 @@ export default function RootLayout({
         <div className="ambient" aria-hidden="true" />
         <div className="grain" aria-hidden="true" />
         <Nav />
+        <TickerBar />
         {children}
       </body>
     </html>

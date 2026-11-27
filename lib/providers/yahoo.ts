@@ -231,6 +231,8 @@ export interface DailyQuote {
   change3mPct: number | null;
   asOf: number;
   stale: boolean;
+  hi52: number | null; // máximo de 52 semanas (solo con meta vigente)
+  lo52: number | null;
   series: SeriesPoint[];
 }
 
@@ -272,7 +274,13 @@ export function buildDailyQuote(
     const prior = series.filter((p) => dayOf(p.t) < dayOf(metaTime)).at(-1);
     price = metaPrice;
     asOf = metaTime;
-    previousClose = prior?.c ?? Number(meta.chartPreviousClose ?? price);
+    // Si Yahoo informa la variación del día se usa esa (respeta festivos y
+    // liquidaciones que no aparecen en la serie); si no, se deduce de la serie.
+    const metaPct = Number(meta.regularMarketChangePercent);
+    previousClose =
+      meta.regularMarketChangePercent != null && Number.isFinite(metaPct) && metaPct > -100
+        ? price / (1 + metaPct / 100)
+        : prior?.c ?? Number(meta.chartPreviousClose ?? price);
   } else {
     price = last!.c;
     asOf = last!.t;
@@ -297,6 +305,8 @@ export function buildDailyQuote(
     change3mPct: first && asOf - first.t >= 80 * DAY ? pctFrom(first.c) : null,
     asOf,
     stale: nowS - asOf > 4 * DAY,
+    hi52: metaFresh && Number(meta.fiftyTwoWeekHigh) > 0 ? Number(meta.fiftyTwoWeekHigh) : null,
+    lo52: metaFresh && Number(meta.fiftyTwoWeekLow) > 0 ? Number(meta.fiftyTwoWeekLow) : null,
     series,
   };
 }

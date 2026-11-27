@@ -10,12 +10,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type {
-  BenchmarkSeries,
-  CommoditiesResponse,
-  CommodityQuote,
-} from "@/lib/types";
-import { fmtMonth, fmtNum, fmtPct, fmtPrice } from "@/lib/format";
+import type { BenchmarkSeries, CommoditiesResponse } from "@/lib/types";
+import QuoteTable from "@/components/QuoteTable";
+import { fmtMonth, fmtNum, fmtPct } from "@/lib/format";
 import { AXIS_TICK, INK, SERIES, TOOLTIP_STYLE } from "@/lib/chart-theme";
 
 const REFRESH_MS = 5 * 60_000;
@@ -27,50 +24,6 @@ function Change({ label, v }: { label: string; v: number | null }) {
       <span className={`cm-chg-val ${v == null ? "" : v >= 0 ? "up" : "down"}`}>
         {fmtPct(v, 1)}
       </span>
-    </div>
-  );
-}
-
-function QuoteCard({ q }: { q: CommodityQuote }) {
-  const date = new Date(q.asOf * 1000).toLocaleDateString("es-CO", {
-    day: "numeric",
-    month: "short",
-  });
-  return (
-    <div className="cm-card card">
-      <div className="cm-head">
-        <span className="cm-name">{q.name}</span>
-        <span className="cm-sym">{q.symbol}</span>
-      </div>
-      <div className="cm-price-row">
-        <span className="cm-price">{fmtPrice(q.price)}</span>
-        <span className="cm-unit">{q.unit}</span>
-      </div>
-      {q.series.length > 5 && (
-        <div className="cm-spark" aria-hidden="true">
-          <ResponsiveContainer width="100%" height={36}>
-            <LineChart data={q.series} margin={{ top: 4, right: 2, bottom: 2, left: 2 }}>
-              <YAxis hide domain={["dataMin", "dataMax"]} />
-              <Line
-                dataKey="c"
-                type="monotone"
-                stroke={SERIES.blue}
-                strokeWidth={1.5}
-                dot={false}
-                isAnimationActive={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-      <div className="cm-chgs">
-        <Change label="1 día" v={q.changePct} />
-        <Change label="1 mes" v={q.change1mPct} />
-        <Change label="3 meses" v={q.change3mPct} />
-      </div>
-      <div className="cm-foot">
-        {q.stale ? `Último dato: ${date}` : `Al ${date}`} · {q.source}
-      </div>
     </div>
   );
 }
@@ -173,7 +126,7 @@ export default function CommodityPanel({
     return (
       <div className="cm-grid">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="skeleton" style={{ height: 170, borderRadius: 16 }} />
+          <div key={i} className="skeleton" style={{ height: 170, borderRadius: 8 }} />
         ))}
       </div>
     );
@@ -193,12 +146,8 @@ export default function CommodityPanel({
       {order.map((g) => (
         <div key={g}>
           <div className="cm-group">{g}</div>
-          <div className="cm-grid">
-            {quotes
-              .filter((q) => q.group === g)
-              .map((q) => (
-                <QuoteCard key={q.symbol} q={q} />
-              ))}
+          <div className="panel">
+            <QuoteTable rows={quotes.filter((q) => q.group === g)} />
           </div>
         </div>
       ))}

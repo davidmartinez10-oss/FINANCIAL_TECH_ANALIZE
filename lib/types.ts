@@ -248,13 +248,24 @@ export interface CommodityQuote {
   group: string; // "Energía y acero" | "Empresas del sector"
   unit: string;
   price: number;
-  changePct: number; // variación diaria
+  change: number; // variación absoluta del día
+  changePct: number; // variación diaria (o mensual si frequency = "M")
   change1mPct: number | null;
   change3mPct: number | null;
   asOf: number; // epoch seconds del último dato
   stale: boolean; // true si el último precio no es de la sesión actual
-  source: string; // "Yahoo" | "FMP"
+  source: string; // "Yahoo" | "FMP" | "FRED"
   series: SeriesPoint[]; // cierres diarios (~3 meses)
+  hi52: number | null; // rango de 52 semanas
+  lo52: number | null;
+  frequency: "D" | "M"; // diaria, o referencia mensual
+}
+
+export interface KeyIndicatorsResponse {
+  asOf: string;
+  groups: string[];
+  rows: CommodityQuote[];
+  errors: string[];
 }
 
 export interface BenchmarkPoint {
