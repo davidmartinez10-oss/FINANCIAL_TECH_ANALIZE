@@ -28,7 +28,7 @@ function Change({ label, v }: { label: string; v: number | null }) {
   );
 }
 
-function BenchmarkChart({ b }: { b: BenchmarkSeries }) {
+function BenchmarkChart({ b, retrieved }: { b: BenchmarkSeries; retrieved?: string }) {
   const ticks = useMemo(
     () => b.points.filter((p) => p.d.endsWith("-01")).map((p) => p.d),
     [b]
@@ -40,6 +40,7 @@ function BenchmarkChart({ b }: { b: BenchmarkSeries }) {
           <div className="cm-bench-title">{b.name}</div>
           <div className="cm-bench-sub">
             {b.unit} · promedio mensual · {b.origin} vía FRED
+            {retrieved ? ` · descargado el ${retrieved}` : ""}
           </div>
         </div>
         <div className="cm-bench-stats">
@@ -172,7 +173,7 @@ export default function CommodityPanel({
               </button>
             ))}
           </div>
-          <BenchmarkChart b={bench} />
+          <BenchmarkChart b={bench} retrieved={data.benchmarksRetrieved} />
         </div>
       )}
 

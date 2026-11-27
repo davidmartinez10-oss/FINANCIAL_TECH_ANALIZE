@@ -17,7 +17,7 @@ const PROBES: { name: string; url: string; headers?: Record<string, string> }[] 
     headers: { "User-Agent": "Mozilla/5.0" },
   },
   {
-    name: "FRED · referencias mensuales",
+    name: "FRED · no se usa en ejecución (se sirve instantánea)",
     url: "https://fred.stlouisfed.org/graph/fredgraph.csv?id=PCOALAUUSDM",
     headers: { "User-Agent": "Mozilla/5.0 (compatible; MacroMarkets/1.0)" },
   },

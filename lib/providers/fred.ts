@@ -1,46 +1,31 @@
 // ─────────────────────────────────────────────────────────────────────────
-// Proveedor: FRED (Federal Reserve Bank of St. Louis), descarga CSV pública.
-// No requiere API key y responde desde IPs de servidor. Se usa para precios
-// de referencia MENSUALES de commodities que no tienen un futuro líquido en
-// Yahoo (carbón térmico, mineral de hierro spot) y como respaldo de energía.
+// Referencias MENSUALES de commodities sin futuro líquido en Yahoo (carbón
+// térmico, mineral de hierro spot) y de energía, más el índice de precios del
+// acero. Las series de precios son del FMI (Primary Commodity Prices)
+// redistribuidas por FRED; el índice es del BLS de EE.UU.
 //
-// Las series de precios son del FMI (Primary Commodity Prices) redistribuidas
-// por FRED; el índice de precios del acero es del BLS de EE.UU.
+// FRED no responde desde los servidores de Vercel (medido el 27-nov-2026 en
+// /api/health: sin respuesta en 8 s), así que en ejecución NO se consulta. Las
+// series se leen de data/benchmarks_snapshot.json, que se actualiza con
+// `node scripts/update-benchmarks.mjs` desde cualquier equipo donde FRED sí
+// responda. Son datos mensuales: basta refrescarlos una vez al mes.
 // ─────────────────────────────────────────────────────────────────────────
+import snapshot from "@/data/benchmarks_snapshot.json";
 import type { BenchmarkPoint } from "@/lib/types";
-import { fetchT } from "@/lib/http";
 
-const FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv";
+const SNAP = snapshot as unknown as {
+  retrieved: string; // YYYY-MM-DD de la última descarga
+  series: Record<string, [string, number][]>;
+};
 
-// CSV: "observation_date,<ID>\n2026-09-01,153.84\n..." (celdas vacías = sin dato)
-export function parseFredCsv(csv: string, fromYear = 2016): BenchmarkPoint[] {
-  const lines = csv.trim().split(/\r?\n/);
-  if (lines.length < 2 || !/^observation_date|^DATE/i.test(lines[0])) {
-    throw new Error("FRED: respuesta no es CSV");
-  }
-  const out: BenchmarkPoint[] = [];
-  for (const line of lines.slice(1)) {
-    const [date, raw] = line.split(",");
-    const v = Number(raw);
-    if (!date || raw === undefined || raw === "" || raw === "." || !Number.isFinite(v)) {
-      continue;
-    }
-    if (Number(date.slice(0, 4)) < fromYear) continue;
-    out.push({ d: date.slice(0, 7), v });
-  }
-  return out;
-}
+// Fecha de corte de la instantánea, para mostrarla junto a las cifras.
+export const BENCHMARKS_RETRIEVED = SNAP.retrieved;
 
-export async function fetchFredSeries(
-  id: string,
-  fromYear = 2016
-): Promise<BenchmarkPoint[]> {
-  const res = await fetchT(`${FRED_CSV}?id=${encodeURIComponent(id)}`, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; MacroMarkets/1.0)" },
-    next: { revalidate: 43_200 },
-  });
-  if (!res.ok) throw new Error(`FRED HTTP ${res.status} (${id})`);
-  const points = parseFredCsv(await res.text(), fromYear);
-  if (points.length === 0) throw new Error(`FRED sin datos para ${id}`);
-  return points;
+// Serie mensual desde la instantánea. Asíncrona para no cambiar a quien la usa.
+export async function fetchFredSeries(id: string, fromYear = 2016): Promise<BenchmarkPoint[]> {
+  const rows = SNAP.series[id];
+  if (!rows || rows.length === 0) throw new Error(`sin datos guardados para ${id}`);
+  return rows
+    .filter(([d]) => Number(d.slice(0, 4)) >= fromYear)
+    .map(([d, v]) => ({ d, v }));
 }

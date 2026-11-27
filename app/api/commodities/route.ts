@@ -10,7 +10,7 @@
 // `errors` y el resto se entrega igual.
 // ─────────────────────────────────────────────────────────────────────────
 import { loadDailyQuotes, type QuoteDef } from "@/lib/quotes";
-import { fetchFredSeries } from "@/lib/providers/fred";
+import { fetchFredSeries, BENCHMARKS_RETRIEVED } from "@/lib/providers/fred";
 import type { CommoditiesResponse, BenchmarkSeries } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -74,6 +74,7 @@ export async function GET() {
     asOf: new Date().toISOString(),
     quotes,
     benchmarks,
+    benchmarksRetrieved: BENCHMARKS_RETRIEVED,
     errors,
   };
   return Response.json(body, {

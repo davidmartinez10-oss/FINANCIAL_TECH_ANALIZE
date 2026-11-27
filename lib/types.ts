@@ -295,6 +295,7 @@ export interface CommoditiesResponse {
   asOf: string;
   quotes: CommodityQuote[];
   benchmarks: BenchmarkSeries[];
+  benchmarksRetrieved?: string; // YYYY-MM-DD de la descarga de las series mensuales
   errors: string[];
 }
 

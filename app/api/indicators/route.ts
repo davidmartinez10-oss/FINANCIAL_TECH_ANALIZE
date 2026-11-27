@@ -91,7 +91,7 @@ async function coalRow(): Promise<CommodityQuote> {
     change3mPct: null,
     asOf: Math.floor(Date.parse(`${last.d}-01T00:00:00Z`) / 1000),
     stale: false,
-    source: "FRED",
+    source: "FMI vía FRED",
     series: tail.map((p) => ({
       t: Math.floor(Date.parse(`${p.d}-01T00:00:00Z`) / 1000),
       c: p.v,

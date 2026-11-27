@@ -132,7 +132,7 @@ Yahoo deja en `meta` un precio de hace años, y se usa el último cierre.
 | Cotizaciones, índices, divisas, futuros | Yahoo Finance (sin key) | FMP, si `FMP_API_KEY` es válida | Intradía |
 | Noticias por canal | Yahoo Finance (búsqueda) | FMP | Minutos |
 | TRM oficial | datos.gov.co, conjunto `32sa-8pi3` (Superfinanciera) | — | Diaria |
-| Carbón, mineral de hierro, gas, Brent (referencias) | FRED (FMI / BLS) | — | Mensual |
+| Carbón, mineral de hierro, gas, Brent (referencias) | `data/benchmarks_snapshot.json` (FMI / BLS vía FRED) | — | Mensual, con `node scripts/update-benchmarks.mjs` |
 | PIB de Colombia y potencias | Banco Mundial | — | Anual |
 | Comercio exterior por partida | UN Comtrade | instantánea en `data/steel_market.json` | Anual |
 | Coque y carbón FOB Colombia, precios base | Boletín UPME-ANM y resoluciones UPME (a mano) | — | Mensual / trimestral |
@@ -149,6 +149,14 @@ Tres reglas que salieron de fallas reales en producción (27-nov-2026):
 - **Sin caché de datos de Next para Yahoo.** Con `next: { revalidate }`, la
   primera visita tras horas sin tráfico recibía precios de días atrás. La
   caché la pone el CDN con `Cache-Control`, que sí tiene tope de antigüedad.
+
+- **Límite de tiempo en toda llamada externa** (`lib/http.ts`, 8 s). Sin él,
+  una fuente que no responde deja la ruta colgada y la página vacía.
+- **FRED no responde desde Vercel.** Las series mensuales se sirven de una
+  instantánea en el repositorio y se refrescan con el script, desde un equipo
+  donde FRED sí conteste.
+- **`/api/health` prueba cada fuente** desde el servidor (estado y latencia):
+  es el primer sitio donde mirar cuando algo deje de cargar.
 
 El pronóstico ensamblado de los tres portafolios (`/api/forecast`) se calcula en
 cada consulta con los cierres del último año. Los pesos de cada portafolio
