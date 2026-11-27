@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/", label: "Dashboard" },
   { href: "/company", label: "Compañías" },
   { href: "/macro", label: "Macro" },
+  { href: "/siderurgia", label: "Siderurgia" },
   { href: "/news", label: "Noticias" },
   { href: "/assistant", label: "Asistente IA" },
 ];

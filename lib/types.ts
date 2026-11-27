@@ -240,3 +240,151 @@ export interface ChatMessage {
   agent?: AgentRole;
   timestamp: number;
 }
+
+// ── Commodities: energía y siderurgia ────────────────────────────────────
+export interface CommodityQuote {
+  symbol: string;
+  name: string;
+  group: string; // "Energía y acero" | "Empresas del sector"
+  unit: string;
+  price: number;
+  changePct: number; // variación diaria
+  change1mPct: number | null;
+  change3mPct: number | null;
+  asOf: number; // epoch seconds del último dato
+  stale: boolean; // true si el último precio no es de la sesión actual
+  source: string; // "Yahoo" | "FMP"
+  series: SeriesPoint[]; // cierres diarios (~3 meses)
+}
+
+export interface BenchmarkPoint {
+  d: string; // YYYY-MM
+  v: number;
+}
+
+export interface BenchmarkSeries {
+  id: string; // id de la serie en FRED
+  name: string;
+  unit: string;
+  origin: string; // fuente primaria (FMI, BLS)
+  last: number;
+  lastDate: string; // YYYY-MM
+  change1mPct: number | null;
+  changeYoYPct: number | null;
+  points: BenchmarkPoint[];
+}
+
+export interface CommoditiesResponse {
+  asOf: string;
+  quotes: CommodityQuote[];
+  benchmarks: BenchmarkSeries[];
+  errors: string[];
+}
+
+// ── PIB: Colombia frente a las potencias (Banco Mundial) ─────────────────
+export interface GdpCountry {
+  iso3: string;
+  name: string;
+  flag: string;
+  role: "base" | "potencia" | "par";
+  year: number; // año del último dato disponible
+  gdpUsd: number | null; // PIB a precios corrientes (USD)
+  growthPct: number | null; // crecimiento real anual
+  perCapitaUsd: number | null;
+  colombiaSharePct: number | null; // PIB de Colombia como % del PIB de este país
+  multiple: number | null; // cuántas veces el PIB de Colombia
+}
+
+export interface GdpResponse {
+  asOf: string;
+  source: string;
+  latestYear: number | null;
+  countries: GdpCountry[];
+  // Una fila por año; claves = iso3.
+  growthSeries: Record<string, number | null>[]; // crecimiento real %
+  ratioSeries: Record<string, number | null>[]; // PIB COL / PIB país, %
+  errors: string[];
+}
+
+// ── Siderurgia: comercio exterior (UN Comtrade) + mercado (curado) ───────
+export interface TradeRow {
+  code: string; // partida / subpartida SA
+  label: string;
+  group: string;
+  importsUsd: Record<string, number | null>; // año → USD CIF
+  exportsUsd: Record<string, number | null>; // año → USD FOB
+  importsKg: number | null; // último año
+  exportsKg: number | null; // último año
+}
+
+export interface TradeOrigin {
+  code: number;
+  name: string;
+  valueUsd: number;
+  sharePct: number;
+}
+
+export interface SteelTrade {
+  source: string;
+  live: boolean; // false → instantánea guardada en el repositorio
+  years: number[];
+  latestYear: number | null;
+  rows: TradeRow[];
+  steelOrigins: TradeOrigin[]; // orígenes de las importaciones del capítulo 72
+  errors: string[];
+}
+
+export interface SteelFigure {
+  label: string;
+  value: string;
+  period: string;
+  sourceId: string;
+}
+
+export interface SteelInput {
+  id: string;
+  name: string;
+  group: string;
+  hs: string[];
+  dependence: "alta" | "media" | "baja" | "nula";
+  dependenceNote: string;
+  national: string;
+  figures: SteelFigure[];
+  routes: string; // rutas siderúrgicas a las que afecta
+  priceRef: string; // precio de referencia a vigilar
+}
+
+export interface SteelSource {
+  id: string;
+  title: string;
+  publisher: string;
+  date: string;
+  url: string;
+}
+
+export interface SteelMarket {
+  asOf: string;
+  kpis: SteelFigure[];
+  globalFacts: SteelFigure[];
+  nationalFacts: SteelFigure[];
+  inputs: SteelInput[];
+  analysis: {
+    global: string[];
+    national: string[];
+    opportunities: string[];
+    risks: string[];
+    watchlist: { indicator: string; why: string; where: string }[];
+    exposure: {
+      input: string;
+      integrated: string;
+      eaf: string;
+    }[];
+  };
+  sources: SteelSource[];
+}
+
+export interface SteelResponse {
+  asOf: string;
+  trade: SteelTrade;
+  market: SteelMarket;
+}
