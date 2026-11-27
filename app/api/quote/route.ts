@@ -31,14 +31,22 @@ export async function GET(req: NextRequest) {
   const interval = searchParams.get("interval") ?? "5m";
 
   try {
-    // FMP (con API key) funciona desde servidores; Yahoo es el fallback.
-    const useFmp = fmpEnabled();
-    const { quotes, errors } = useFmp
-      ? await fmpFetchQuotes(symbols, range, interval)
-      : await fetchQuotes(symbols, range, interval);
+    // Yahoo primero: responde desde Vercel y trae serie intradía. FMP queda de
+    // respaldo para los símbolos que Yahoo no entregue (si hay key válida).
+    let { quotes, errors } = await fetchQuotes(symbols, range, interval);
+    let source = "yahoo-finance/v8-chart";
+    if (errors.length > 0 && fmpEnabled()) {
+      const missing = errors.map((e) => e.symbol);
+      const fb = await fmpFetchQuotes(missing, range, interval);
+      if (fb.quotes.length > 0) {
+        quotes = [...quotes, ...fb.quotes];
+        errors = fb.errors;
+        source += " + financial-modeling-prep";
+      }
+    }
     const body: QuoteResponse = {
       asOf: new Date().toISOString(),
-      source: useFmp ? "financial-modeling-prep" : "yahoo-finance/v8-chart",
+      source,
       quotes,
       ...(errors.length ? { errors } : {}),
     };

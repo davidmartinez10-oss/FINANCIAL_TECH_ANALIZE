@@ -125,6 +125,46 @@ del FMI y, como señal diaria, acciones de carbón térmico (BTU) y metalúrgico
 de mercado con la de la serie de cierres: en futuros poco líquidos como `TIO=F`
 Yahoo deja en `meta` un precio de hace años, y se usa el último cierre.
 
+## Proveedores de datos y orden de consulta
+
+| Dato | Fuente principal | Respaldo | Frecuencia |
+|---|---|---|---|
+| Cotizaciones, índices, divisas, futuros | Yahoo Finance (sin key) | FMP, si `FMP_API_KEY` es válida | Intradía |
+| Noticias por canal | Yahoo Finance (búsqueda) | FMP | Minutos |
+| TRM oficial | datos.gov.co, conjunto `32sa-8pi3` (Superfinanciera) | — | Diaria |
+| Carbón, mineral de hierro, gas, Brent (referencias) | FRED (FMI / BLS) | — | Mensual |
+| PIB de Colombia y potencias | Banco Mundial | — | Anual |
+| Comercio exterior por partida | UN Comtrade | instantánea en `data/steel_market.json` | Anual |
+| Coque y carbón FOB Colombia, precios base | Boletín UPME-ANM y resoluciones UPME (a mano) | — | Mensual / trimestral |
+
+Tres reglas que salieron de fallas reales en producción (27-nov-2026):
+
+- **Yahoo va primero.** FMP retiró los endpoints `/api/v3` para cuentas
+  posteriores a agosto de 2025 (responde HTTP 403). Con la key presente, el
+  código anterior consultaba solo FMP y dejaba vacías las cotizaciones, la
+  página Macro y las noticias. Ahora FMP solo cubre lo que Yahoo no entregue.
+- **Consultas cortas en noticias.** La búsqueda de Yahoo devuelve cero
+  resultados con consultas de varias palabras; cada canal lanza varias
+  consultas de un ticker o una palabra y se unen (`fetchNewsMulti`).
+- **Sin caché de datos de Next para Yahoo.** Con `next: { revalidate }`, la
+  primera visita tras horas sin tráfico recibía precios de días atrás. La
+  caché la pone el CDN con `Cache-Control`, que sí tiene tope de antigüedad.
+
+El pronóstico ensamblado de los tres portafolios (`/api/forecast`) se calcula en
+cada consulta con los cierres del último año. Los pesos de cada portafolio
+siguen saliendo de `data/forecast_results.json`; ese archivo solo se sirve
+completo, con aviso en pantalla, si Yahoo no entrega algún activo.
+
+## Tema y unidades
+
+- Tema claro por defecto y oscuro con el interruptor de la barra superior
+  (`data-theme="dark"` en `<html>`, guardado en `localStorage`). Todos los
+  colores son variables CSS de `app/globals.css`; las gráficas las leen desde
+  `lib/chart-theme.ts`. La paleta de series está validada para cada fondo.
+- Toda cifra lleva su unidad: columna «Unidad» en las tablas de cotizaciones,
+  unidad en el encabezado de cada columna y leyenda de abreviaturas en
+  Siderurgia (USD, COP, t, kt, Mt, CIF, FOB).
+
 ## Módulo Siderurgia (micro)
 
 `/siderurgia` responde tres preguntas para una empresa siderúrgica en Colombia:

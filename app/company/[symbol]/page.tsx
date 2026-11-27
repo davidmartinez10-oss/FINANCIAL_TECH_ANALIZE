@@ -177,19 +177,19 @@ export default function CompanyPage() {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4c8dff" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#4c8dff" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--s-blue)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--s-blue)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis
                   dataKey="t"
-                  tick={{ fill: "#8b90a0", fontSize: 10 }}
+                  tick={{ fill: "var(--chart-ink-2)", fontSize: 10 }}
                   tickLine={false}
                   axisLine={false}
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  tick={{ fill: "#8b90a0", fontSize: 10 }}
+                  tick={{ fill: "var(--chart-ink-2)", fontSize: 10 }}
                   tickLine={false}
                   axisLine={false}
                   domain={["auto", "auto"]}
@@ -198,8 +198,9 @@ export default function CompanyPage() {
                 />
                 <Tooltip
                   contentStyle={{
-                    background: "#14161c",
-                    border: "1px solid #262a35",
+                    background: "var(--panel-solid)",
+                    color: "var(--chart-ink)",
+                    border: "1px solid var(--hairline-strong)",
                     borderRadius: 8,
                     fontSize: 12,
                   }}
@@ -208,7 +209,7 @@ export default function CompanyPage() {
                 <Area
                   type="monotone"
                   dataKey="price"
-                  stroke="#4c8dff"
+                  stroke="var(--s-blue)"
                   strokeWidth={2}
                   fill="url(#cg)"
                   dot={false}

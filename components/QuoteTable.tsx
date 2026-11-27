@@ -64,7 +64,7 @@ function when(q: CommodityQuote) {
     return fmtMonth(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`);
   }
   const d = new Date(q.asOf * 1000);
-  const today = new Date().toDateString() === d.toDateString();
+  const today = !q.dateOnly && new Date().toDateString() === d.toDateString();
   return today
     ? d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", hour12: false })
     : d.toLocaleDateString("es-CO", { day: "numeric", month: "short" });
@@ -79,6 +79,7 @@ export default function QuoteTable({ rows, showGroup = false }: { rows: Commodit
           <tr>
             <th>Nombre</th>
             <th className="num">Último</th>
+            <th>Unidad</th>
             <th className="num qt-col-abs">Var.</th>
             <th className="num">Var. %</th>
             <th className="num">1 mes</th>
@@ -94,12 +95,13 @@ export default function QuoteTable({ rows, showGroup = false }: { rows: Commodit
                 <span className="qt-name">{q.name}</span>
                 <span className="qt-sub">
                   {showGroup ? `${q.group} · ` : ""}
-                  {q.unit}
+                  {q.source}
                   {q.frequency === "M" && <span className="qt-tag">mensual</span>}
                   {q.stale && <span className="qt-tag">dato anterior</span>}
                 </span>
               </td>
               <td className="num qt-last">{fmtPrice(q.price)}</td>
+              <td className="qt-unit">{q.unit}</td>
               <td className="num qt-col-abs">
                 <Delta v={q.change} decimals={Math.abs(q.price) >= 1000 ? 1 : Math.abs(q.price) >= 10 ? 2 : 3} suffix="" />
               </td>

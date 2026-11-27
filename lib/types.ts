@@ -70,6 +70,9 @@ export interface ForecastResults {
     horizon_days: number;
     n_sims: number;
     rows: number;
+    source?: string;
+    last_close?: string; // YYYY-MM-DD del último cierre usado
+    errors?: string[];
   };
   portfolios: Record<string, PortfolioForecast>;
 }
@@ -198,6 +201,7 @@ export interface MacroIndicator {
   price: number;
   changePct: number;
   category: string;
+  unit: string; // p. ej. "puntos", "USD", "COP por USD"
 }
 
 export interface MacroRegion {
@@ -228,6 +232,7 @@ export interface NewsArticle {
 export interface NewsResponse {
   articles: NewsArticle[];
   query: string;
+  source?: string;
   asOf: string;
 }
 
@@ -258,7 +263,8 @@ export interface CommodityQuote {
   series: SeriesPoint[]; // cierres diarios (~3 meses)
   hi52: number | null; // rango de 52 semanas
   lo52: number | null;
-  frequency: "D" | "M"; // diaria, o referencia mensual
+  frequency: "D" | "M";
+  dateOnly?: boolean; // el dato rige por día (TRM): mostrar fecha, no hora // diaria, o referencia mensual
 }
 
 export interface KeyIndicatorsResponse {

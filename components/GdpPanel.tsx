@@ -84,8 +84,8 @@ export default function GdpPanel() {
             <tr>
               <th>Economía</th>
               <th className="num">PIB {data.latestYear} · billones de USD</th>
-              <th className="num">Crecimiento real</th>
-              <th className="num">PIB per cápita</th>
+              <th className="num">Crecimiento real · % anual</th>
+              <th className="num">PIB per cápita · USD</th>
               <th className="num">Veces el PIB de Colombia</th>
               <th className="num">Colombia como % de su PIB</th>
             </tr>
@@ -174,7 +174,7 @@ export default function GdpPanel() {
 
         <div className="card">
           <div className="cm-bench-title">Crecimiento real del PIB</div>
-          <div className="cm-bench-sub">% anual · Colombia en blanco como referencia</div>
+          <div className="cm-bench-sub">% anual · Colombia en línea gruesa como referencia</div>
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={data.growthSeries} margin={{ top: 12, right: 80, bottom: 0, left: 0 }}>
               <CartesianGrid stroke={INK.grid} vertical={false} />

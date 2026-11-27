@@ -38,17 +38,18 @@ const BROWSER_HEADERS = {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function fetchYF(
-  path: string,
-  revalidate = 30
-): Promise<any> {
+// Sin caché de datos de Next: con `revalidate`, la primera visita tras horas
+// sin tráfico recibía la respuesta vieja (precios de días atrás) mientras se
+// refrescaba en segundo plano. La caché corta la pone el CDN (Cache-Control
+// de cada ruta), que sí tiene un tope de antigüedad.
+async function fetchYF(path: string): Promise<any> {
   let lastErr: unknown = null;
   for (const host of YF_HOSTS) {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const res = await fetch(host + path, {
           headers: BROWSER_HEADERS,
-          next: { revalidate },
+          cache: "no-store",
         });
         if (res.ok) return await res.json();
         if (res.status === 429 || res.status >= 500) {
@@ -78,7 +79,7 @@ export async function fetchQuote(
     `/v8/finance/chart/${encodeURIComponent(symbol)}` +
     `?range=${range}&interval=${interval}&includePrePost=false`;
 
-  const json = await fetchYF(path, 30);
+  const json = await fetchYF(path);
   const result = json?.chart?.result?.[0];
   if (!result) {
     const desc = json?.chart?.error?.description ?? "respuesta vacía";
@@ -149,7 +150,7 @@ export async function yahooDailyCloses(
   const path =
     `/v8/finance/chart/${encodeURIComponent(symbol)}` +
     `?range=${range}&interval=${interval}&includePrePost=false`;
-  const json = await fetchYF(path, 600);
+  const json = await fetchYF(path);
   const result = json?.chart?.result?.[0];
   if (!result) throw new Error(`Yahoo sin histórico para ${symbol}`);
   const timestamps: number[] = result.timestamp ?? [];
@@ -175,7 +176,7 @@ export async function fetchQuoteSummary(symbol: string): Promise<any> {
     `/v10/finance/quoteSummary/${encodeURIComponent(symbol)}` +
     `?modules=${encodeURIComponent(modules)}&lang=en-US&region=US`;
 
-  const json = await fetchYF(path, 300);
+  const json = await fetchYF(path);
   const result = json?.quoteSummary?.result?.[0];
   if (!result) {
     const err = json?.quoteSummary?.error?.description ?? "sin datos";
@@ -195,7 +196,7 @@ export async function fetchNews(
     `&quotesCount=0&newsCount=${count}&lang=en-US&region=US`;
 
   try {
-    const json = await fetchYF(path, 300);
+    const json = await fetchYF(path);
     const raw: any[] = json?.news ?? [];
     return raw.map((n: any) => ({
       uuid: n.uuid ?? String(Math.random()),
@@ -213,6 +214,26 @@ export async function fetchNews(
   } catch {
     return [];
   }
+}
+
+// La búsqueda de Yahoo solo trae noticias con consultas cortas (un ticker o
+// una palabra): con varias palabras devuelve cero. Por eso cada canal lanza
+// varias consultas cortas y aquí se unen, se quitan repetidas y se ordenan
+// de la más reciente a la más antigua.
+export async function fetchNewsMulti(
+  queries: string[],
+  perQuery = 8
+): Promise<NewsArticle[]> {
+  const settled = await Promise.all(queries.map((q) => fetchNews(q, perQuery)));
+  const seen = new Set<string>();
+  const out: NewsArticle[] = [];
+  for (const a of settled.flat()) {
+    const key = a.link || a.uuid;
+    if (!a.title || seen.has(key)) continue;
+    seen.add(key);
+    out.push(a);
+  }
+  return out.sort((a, b) => b.publishedAt - a.publishedAt);
 }
 
 // ── Cotización diaria robusta (futuros de commodities) ─────────────────────
@@ -318,7 +339,7 @@ export async function fetchDailyQuote(
   const path =
     `/v8/finance/chart/${encodeURIComponent(symbol)}` +
     `?range=${range}&interval=1d&includePrePost=false`;
-  const json = await fetchYF(path, 300);
+  const json = await fetchYF(path);
   const result = json?.chart?.result?.[0];
   if (!result) {
     const desc = json?.chart?.error?.description ?? "respuesta vacía";

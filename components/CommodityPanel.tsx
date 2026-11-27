@@ -82,7 +82,7 @@ function BenchmarkChart({ b }: { b: BenchmarkSeries }) {
             stroke={SERIES.blue}
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 4, stroke: "#14161c", strokeWidth: 2 }}
+            activeDot={{ r: 4, stroke: "var(--panel-solid)", strokeWidth: 2 }}
             isAnimationActive={false}
           />
         </LineChart>

@@ -1,54 +1,51 @@
-import { fetchNews } from "@/lib/providers/yahoo";
+import { fetchNewsMulti } from "@/lib/providers/yahoo";
 import { fmpEnabled, fmpNews } from "@/lib/providers/fmp";
 import type { NewsResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Consulta de texto para Yahoo (búsqueda libre).
-const SECTOR_QUERIES: Record<string, string> = {
-  tech: "technology stocks semiconductors AI",
-  ai: "artificial intelligence AI chips NVIDIA Microsoft Google",
-  energy: "energy uranium nuclear solar oil gas",
-  economy: "economy fed interest rates inflation market",
-  latam: "latin america colombia brazil mexico markets",
-  portfolio: "NVDA MSFT GOOGL SOXX SMH TAN NLR URNM SPY QQQ",
+// Consultas cortas por canal (un ticker o una palabra cada una). Yahoo no
+// devuelve noticias cuando la consulta lleva varias palabras.
+const CHANNEL_QUERIES: Record<string, string[]> = {
+  portfolio: ["NVDA", "MSFT", "GOOGL", "SMH", "URNM", "SPY"],
+  tech: ["semiconductors", "AAPL", "MSFT", "META", "AMZN"],
+  ai: ["NVDA", "AMD", "PLTR", "OpenAI", "GOOGL"],
+  energy: ["uranium", "CCJ", "XOM", "oil", "solar"],
+  economy: ["Fed", "inflation", "Treasury", "economy", "tariffs"],
+  latam: ["Colombia", "Ecopetrol", "Brazil", "Mexico", "EWZ"],
+  steel: ["steel", "MT", "VALE", "coal", "TX"],
 };
 
-// Tickers representativos por sector para FMP (/stock_news?tickers=).
-// economy/latam quedan sin tickers → últimas noticias generales del mercado.
-const SECTOR_TICKERS: Record<string, string> = {
+// Respaldo FMP (solo si Yahoo no trae nada y hay key válida).
+const FMP_TICKERS: Record<string, string> = {
+  portfolio: "NVDA,MSFT,GOOGL,SOXX,SMH,TAN,NLR,URNM,SPY,QQQ",
   tech: "AAPL,MSFT,NVDA,GOOGL,META,AMZN",
   ai: "NVDA,MSFT,GOOGL,AMD,PLTR,SMCI",
   energy: "XOM,CVX,NEE,FSLR,CCJ,UEC",
-  economy: "",
-  latam: "",
-  portfolio: "NVDA,MSFT,GOOGL,SOXX,SMH,TAN,NLR,URNM,SPY,QQQ",
+  steel: "MT,VALE,TX,GGB,HCC,BTU",
 };
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const sector = searchParams.get("sector") ?? "portfolio";
-  const symbol = searchParams.get("symbol") ?? "";
+  const symbol = (searchParams.get("symbol") ?? "").toUpperCase();
+
+  const queries = symbol ? [symbol] : (CHANNEL_QUERIES[sector] ?? CHANNEL_QUERIES.portfolio);
 
   try {
-    let articles;
-    let query: string;
+    let articles = await fetchNewsMulti(queries, symbol ? 20 : 8);
+    let source = "Yahoo Finance";
 
-    if (fmpEnabled()) {
-      const tickers = symbol
-        ? symbol.toUpperCase()
-        : (SECTOR_TICKERS[sector] ?? SECTOR_TICKERS.portfolio);
-      query = tickers || sector;
-      articles = await fmpNews(tickers, 25);
-    } else {
-      query = symbol || (SECTOR_QUERIES[sector] ?? SECTOR_QUERIES.portfolio);
-      articles = await fetchNews(query, 25);
+    if (articles.length === 0 && fmpEnabled()) {
+      articles = await fmpNews(symbol || (FMP_TICKERS[sector] ?? ""), 25);
+      source = "Financial Modeling Prep";
     }
 
     const response: NewsResponse = {
-      articles: articles.slice(0, 20),
-      query,
+      articles: articles.slice(0, 24),
+      query: queries.join(", "),
+      source,
       asOf: new Date().toISOString(),
     };
 

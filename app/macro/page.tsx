@@ -23,8 +23,9 @@ function IndicatorRow({ ind }: { ind: MacroIndicator }) {
       <div className="ind-right">
         <span className="ind-price">
           {ind.price > 100
-            ? ind.price.toLocaleString("en-US", { maximumFractionDigits: 2 })
-            : ind.price.toFixed(4)}
+            ? ind.price.toLocaleString("es-CO", { maximumFractionDigits: 2 })
+            : ind.price.toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+          <span className="unit"> {ind.unit}</span>
         </span>
         <span className={`ind-chg ${up ? "up" : "down"}`}>{pct(ind.changePct)}</span>
       </div>

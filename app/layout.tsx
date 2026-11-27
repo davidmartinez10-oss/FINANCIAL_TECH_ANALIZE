@@ -34,7 +34,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${sans.variable} ${mono.variable}`}>
+    <html lang="es" className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Aplica el tema guardado antes de pintar, para que no parpadee. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{if(localStorage.getItem("mm-theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}',
+          }}
+        />
+      </head>
       <body>
         {/* Capa de textura ambiental fija (grano + orbes) */}
         <div className="ambient" aria-hidden="true" />

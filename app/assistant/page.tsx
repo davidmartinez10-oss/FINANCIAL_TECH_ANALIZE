@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import type { ChatMessage, AgentRole } from "@/lib/types";
 
 const AGENT_COLORS: Record<AgentRole, string> = {
-  analyst: "#4c8dff",
-  economist: "#2ec16e",
-  financier: "#f5c451",
-  fallback: "#ff9f43",
+  analyst: "var(--s-blue)",
+  economist: "var(--s-green)",
+  financier: "var(--s-yellow)",
+  fallback: "var(--s-orange)",
 };
 
 const AGENT_LABELS: Record<AgentRole, string> = {

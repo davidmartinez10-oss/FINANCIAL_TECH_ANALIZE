@@ -49,8 +49,8 @@ export async function GET() {
       hint: fmp
         ? fmpLive.ok
           ? "FMP operativo."
-          : "FMP_API_KEY presente pero la API la rechaza: regenérala o revisa el plan."
-        : "FMP_API_KEY no llega al runtime: revísala en Vercel → Settings → Environment Variables y redespliega.",
+          : "FMP rechaza la key (las cuentas posteriores a ago-2025 no tienen los endpoints /api/v3). No bloquea la plataforma: Yahoo es la fuente principal y FMP solo un respaldo."
+        : "Sin FMP_API_KEY. No hace falta: Yahoo es la fuente principal y FMP solo un respaldo opcional.",
       asOf: new Date().toISOString(),
     },
     { headers: { "Cache-Control": "no-store" } }

@@ -291,8 +291,8 @@ function PricePanel({
               <thead>
                 <tr>
                   <th>Partida</th>
-                  <th className="num">Importación (CIF)</th>
-                  <th className="num">Exportación (FOB)</th>
+                  <th className="num">Importación · USD/t CIF</th>
+                  <th className="num">Exportación · USD/t FOB</th>
                 </tr>
               </thead>
               <tbody>
@@ -436,6 +436,12 @@ export default function SiderurgiaPage() {
         </div>
       </header>
 
+      <div className="unit-legend" role="note">
+        <strong>Unidades:</strong> USD = dólares de EE. UU. · COP = pesos colombianos · t =
+        tonelada métrica · kt = mil toneladas · Mt = millón de toneladas · M = millones ·
+        CIF = valor puesto en puerto colombiano · FOB = valor en puerto de origen
+      </div>
+
       <section>
         <h2 className="section-title">Colombia en cuatro cifras</h2>
         <FactGrid facts={market.kpis} sources={sources} />
@@ -510,7 +516,7 @@ export default function SiderurgiaPage() {
                 />
                 <Tooltip
                   contentStyle={TOOLTIP_STYLE}
-                  cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                  cursor={{ fill: INK.cursor }}
                   formatter={(v, k) => [`US$${fmtNum(Number(v), 1)} M`, String(k)]}
                 />
                 <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} formatter={(k) => <span style={{ color: INK.secondary }}>{String(k)}</span>} />
@@ -553,11 +559,11 @@ export default function SiderurgiaPage() {
                 <tr>
                   <th>Partida</th>
                   <th>Grupo</th>
-                  <th className="num">Importaciones (CIF)</th>
-                  <th className="num">Peso</th>
-                  <th className="num">Exportaciones (FOB)</th>
-                  <th className="num">Peso</th>
-                  <th className="num">Balance</th>
+                  <th className="num">Importaciones · USD CIF</th>
+                  <th className="num">Peso · toneladas</th>
+                  <th className="num">Exportaciones · USD FOB</th>
+                  <th className="num">Peso · toneladas</th>
+                  <th className="num">Balance · USD</th>
                 </tr>
               </thead>
               <tbody>
