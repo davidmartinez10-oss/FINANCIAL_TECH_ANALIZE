@@ -1,0 +1,44 @@
+# Actualiza cada mañana las series que la plataforma no puede traer en vivo.
+#
+# FRED no responde desde los servidores de Vercel, así que las referencias
+# mensuales (carbón, mineral de hierro, Brent, gas, índice del acero) se
+# guardan en data/benchmarks_snapshot.json. Este flujo las descarga desde los
+# servidores de GitHub y, solo si cambiaron, hace commit en la rama por
+# defecto y en main; Vercel publica main automáticamente.
+name: Actualizar datos
+
+on:
+  schedule:
+    - cron: "0 12 * * *" # 12:00 UTC = 7:00 a. m. en Colombia (UTC-5, sin horario de verano)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Descargar series mensuales de FRED
+        run: node scripts/update-benchmarks.mjs
+      - name: Publicar si hubo cambios
+        run: |
+          if git diff --quiet -- data/benchmarks_snapshot.json; then
+            echo "Sin datos nuevos: no se publica nada."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Datos: series mensuales de FRED al $(date -u +%F)" -- data/benchmarks_snapshot.json
+          git push origin HEAD:${{ github.ref_name }}
+          # main es la rama que Vercel publica; va en el mismo commit que la rama por defecto.
+          if [ "${{ github.ref_name }}" != "main" ]; then git push origin HEAD:main; fi
