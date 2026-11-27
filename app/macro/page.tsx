@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import type { MacroResponse, MacroRegion, MacroIndicator } from "@/lib/types";
+import CommodityPanel from "@/components/CommodityPanel";
+import GdpPanel from "@/components/GdpPanel";
 
 const REFRESH_MS = 60_000;
 
@@ -21,8 +23,9 @@ function IndicatorRow({ ind }: { ind: MacroIndicator }) {
       <div className="ind-right">
         <span className="ind-price">
           {ind.price > 100
-            ? ind.price.toLocaleString("en-US", { maximumFractionDigits: 2 })
-            : ind.price.toFixed(4)}
+            ? ind.price.toLocaleString("es-CO", { maximumFractionDigits: 2 })
+            : ind.price.toLocaleString("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+          <span className="unit"> {ind.unit}</span>
         </span>
         <span className={`ind-chg ${up ? "up" : "down"}`}>{pct(ind.changePct)}</span>
       </div>
@@ -82,7 +85,8 @@ export default function MacroPage() {
         <div>
           <h1>Análisis Macroeconómico Global</h1>
           <div className="sub">
-            Mercados, divisas y commodities por región · Actualización cada minuto
+            Mercados, divisas y commodities por región · Petróleo, carbón y acero ·
+            PIB de Colombia frente a las potencias
           </div>
         </div>
         {asOf && (
@@ -93,38 +97,52 @@ export default function MacroPage() {
         )}
       </header>
 
-      {loading ? (
-        <div className="macro-grid">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="skeleton"
-              style={{ height: 280, borderRadius: 12 }}
-            />
-          ))}
-        </div>
-      ) : data ? (
-        <>
+      <section>
+        <h2 className="section-title">Mercados por región</h2>
+        {loading ? (
           <div className="macro-grid">
-            {data.regions.map((r) => (
-              <RegionCard key={r.region} r={r} />
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="skeleton"
+                style={{ height: 280, borderRadius: 12 }}
+              />
             ))}
           </div>
-          {data.errors.length > 0 && (
-            <div className="note" style={{ marginTop: 16 }}>
-              Algunos símbolos no disponibles: {data.errors.length} errores.
-              Ciertos ETFs de mercados restringidos (Rusia) pueden estar suspendidos.
+        ) : data ? (
+          <>
+            <div className="macro-grid">
+              {data.regions.map((r) => (
+                <RegionCard key={r.region} r={r} />
+              ))}
             </div>
-          )}
-        </>
-      ) : (
-        <div className="note">No se pudieron cargar los datos macroeconómicos.</div>
-      )}
+            {data.errors.length > 0 && (
+              <div className="note" style={{ marginTop: 16 }}>
+                Algunos símbolos no disponibles: {data.errors.length} errores.
+                Ciertos ETFs de mercados restringidos (Rusia) pueden estar suspendidos.
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="note">No se pudieron cargar los datos macroeconómicos.</div>
+        )}
+      </section>
+
+      <section>
+        <h2 className="section-title">Energía, carbón y acero · precios de referencia</h2>
+        <CommodityPanel />
+      </section>
+
+      <section>
+        <h2 className="section-title">PIB · Colombia frente a las potencias</h2>
+        <GdpPanel />
+      </section>
 
       <footer>
-        Fuente: Yahoo Finance (público). Indicadores proxy de mercado para análisis
-        macroeconómico. No incluye datos del PIB, inflación o bancos centrales en tiempo
-        real. Solo con fines educativos.
+        Fuentes: Yahoo Finance (cotizaciones), FRED (precios mensuales del FMI e IPP del
+        BLS) y Banco Mundial (PIB anual). El carbón no tiene un futuro líquido de acceso
+        público: se muestra su referencia mensual y acciones del sector como señal diaria.
+        Solo con fines educativos.
       </footer>
     </main>
   );

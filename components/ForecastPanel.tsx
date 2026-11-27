@@ -41,46 +41,47 @@ function ForecastChart({ p, horizon }: { p: PortfolioForecast; horizon: number }
       <ComposedChart data={chartData} margin={{ top: 8, right: 10, left: -16, bottom: 0 }}>
         <defs>
           <linearGradient id="bandGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4c8dff" stopOpacity={0.4} />
-            <stop offset="100%" stopColor="#4c8dff" stopOpacity={0.08} />
+            <stop offset="0%" stopColor="var(--s-blue)" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="var(--s-blue)" stopOpacity={0.08} />
           </linearGradient>
         </defs>
-        <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="2 5" vertical={false} />
+        <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="2 5" vertical={false} />
         <XAxis
           dataKey="d"
-          tick={{ fill: "#8b90a0", fontSize: 10 }}
+          tick={{ fill: "var(--chart-ink-2)", fontSize: 10 }}
           tickLine={false}
           axisLine={false}
           interval="preserveStartEnd"
         />
         <YAxis
-          tick={{ fill: "#8b90a0", fontSize: 10 }}
+          tick={{ fill: "var(--chart-ink-2)", fontSize: 10 }}
           tickLine={false}
           axisLine={false}
           domain={["auto", "auto"]}
           width={48}
-          tickFormatter={(v) => `$${Math.round(v)}`}
+          tickFormatter={(v) => `${Math.round(v)}`}
         />
         <Tooltip
           contentStyle={{
-            background: "rgba(20,22,28,0.92)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            background: "var(--panel-solid)",
+            color: "var(--chart-ink)",
+            border: "1px solid var(--hairline-strong)",
             borderRadius: 10,
             fontSize: 12,
             backdropFilter: "blur(8px)",
           }}
           labelFormatter={(d) => `Día +${d}`}
           formatter={(v: number, n) => {
-            if (n === "ens") return [`$${v.toFixed(2)}`, "Ensamble"];
+            if (n === "ens") return [`${v.toFixed(2)} (índice base 100)`, "Ensamble"];
             return null as unknown as [string, string];
           }}
         />
         {/* hi area with gradient — renders behind (full band from baseline to hi) */}
         <Area dataKey="hi" stroke="none" fill="url(#bandGrad)" legendType="none" isAnimationActive={false} />
         {/* lo area covers baseline-to-lo with card color, leaving only the band visible */}
-        <Area dataKey="lo" stroke="none" fill="#14161c" legendType="none" isAnimationActive={false} />
+        <Area dataKey="lo" stroke="none" fill="var(--panel-solid)" legendType="none" isAnimationActive={false} />
         {/* Ensemble line on top */}
-        <Line type="monotone" dataKey="ens" stroke="#2ec16e" strokeWidth={2.5} dot={false} isAnimationActive={false} />
+        <Line type="monotone" dataKey="ens" stroke="var(--s-green)" strokeWidth={2.5} dot={false} isAnimationActive={false} />
       </ComposedChart>
     </ResponsiveContainer>
   );
@@ -109,7 +110,7 @@ function PortfolioCard({
     <div className="card fc-card">
       <div className="fc-head">
         <h3>{name}</h3>
-        <span className="badge">Sharpe {p.composition.sharpe.toFixed(2)}</span>
+        <span className="badge" title="Retorno anualizado menos 4,5 % libre de riesgo, dividido por la volatilidad anualizada del último año">Sharpe 1 año {p.composition.sharpe.toFixed(2)}</span>
       </div>
 
       <ForecastChart p={p} horizon={horizon} />
@@ -123,18 +124,18 @@ function PortfolioCard({
 
       <div className="metrics">
         <div className="metric">
-          <div className="label">Ensamble {horizon}d</div>
+          <div className="label">Retorno esperado · {horizon} días hábiles</div>
           <div className={`val ${up ? "up" : "down"}`}>
             {up ? "+" : ""}
             {series.endpointReturnPct.toFixed(2)}%
           </div>
         </div>
         <div className="metric">
-          <div className="label">VaR 95% · 21d</div>
+          <div className="label">VaR 95 % · 21 días · % del valor</div>
           <div className="val down">{mc.VaR_95_pct.toFixed(1)}%</div>
         </div>
         <div className="metric">
-          <div className="label">CVaR 95% · 21d</div>
+          <div className="label">CVaR 95 % · 21 días · % del valor</div>
           <div className="val down">{mc.CVaR_95_pct.toFixed(1)}%</div>
         </div>
       </div>
@@ -203,12 +204,25 @@ export default function ForecastPanel() {
     <section>
       <h2 className="section-title">
         Pronósticos ensamblados (Prophet · ARIMAX · XGBoost · Holt-Winters) ·{" "}
-        {data.meta.n_sims.toLocaleString()} simulaciones Monte Carlo
+        {data.meta.n_sims.toLocaleString("es-CO")} simulaciones Monte Carlo
       </h2>
       <div className="fc-toolbar">
         <span className="fc-toolbar-label">Horizonte del pronóstico</span>
         <HorizonTabs value={horizon} onChange={setHorizon} />
       </div>
+      {data.meta.data_mode === "live" ? (
+        <div className="fc-meta">
+          Calculado ahora con cierres diarios de {data.meta.source ?? "Yahoo Finance"} hasta el{" "}
+          {data.meta.last_close} ({data.meta.rows} ruedas). Eje vertical: valor del portafolio como
+          índice (100 = hace un año). Retornos, VaR y CVaR en porcentaje del valor.
+        </div>
+      ) : (
+        <div className="note" style={{ marginBottom: 14 }}>
+          No se pudo recalcular con datos de hoy
+          {data.meta.errors?.length ? ` (${data.meta.errors.join("; ")})` : ""}. Las cifras de abajo
+          son del {String(data.meta.generated).slice(0, 10)} y sirven solo de referencia.
+        </div>
+      )}
       <div className="fc-grid">
         {Object.entries(data.portfolios).map(([name, p]) => (
           <PortfolioCard key={name} name={name} p={p} horizon={horizon} />

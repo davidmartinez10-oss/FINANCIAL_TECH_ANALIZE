@@ -17,17 +17,17 @@ import type { LiveAssetForecast } from "@/lib/types";
 import HorizonTabs from "@/components/HorizonTabs";
 
 const MODEL_COLORS: Record<string, string> = {
-  Prophet: "#c084fc",
-  ARIMAX: "#4c8dff",
-  XGBoost: "#f5c451",
-  "Holt-Winters": "#2dd4bf",
+  Prophet: "var(--s-violet)",
+  ARIMAX: "var(--s-blue)",
+  XGBoost: "var(--s-yellow)",
+  "Holt-Winters": "var(--s-aqua)",
 };
 
 function pct(x: number, d = 1) {
   return `${(x * 100).toFixed(d)}%`;
 }
 function money(x: number) {
-  return `$${x.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+  return `US$${x.toLocaleString("es-CO", { maximumFractionDigits: 2 })}`;
 }
 
 function buildChartData(f: LiveAssetForecast) {
@@ -196,14 +196,14 @@ export default function AssetForecast({ symbol }: { symbol: string }) {
           <ComposedChart data={chart.rows} margin={{ top: 10, right: 14, left: -8, bottom: 0 }}>
             <defs>
               <linearGradient id="mcBand" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#4c8dff" stopOpacity={0.32} />
-                <stop offset="100%" stopColor="#4c8dff" stopOpacity={0.06} />
+                <stop offset="0%" stopColor="var(--s-blue)" stopOpacity={0.32} />
+                <stop offset="100%" stopColor="var(--s-blue)" stopOpacity={0.06} />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="2 6" vertical={false} />
+            <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="2 6" vertical={false} />
             <XAxis
               dataKey="x"
-              tick={{ fill: "#8b90a0", fontSize: 10 }}
+              tick={{ fill: "var(--chart-ink-2)", fontSize: 10 }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(x) => {
@@ -213,17 +213,18 @@ export default function AssetForecast({ symbol }: { symbol: string }) {
               interval="preserveStartEnd"
             />
             <YAxis
-              tick={{ fill: "#8b90a0", fontSize: 10 }}
+              tick={{ fill: "var(--chart-ink-2)", fontSize: 10 }}
               tickLine={false}
               axisLine={false}
               domain={["auto", "auto"]}
               width={52}
-              tickFormatter={(y) => `$${Math.round(y)}`}
+              tickFormatter={(y) => `US$${Math.round(y)}`}
             />
             <Tooltip
               contentStyle={{
-                background: "rgba(16,18,24,0.94)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                background: "var(--panel-solid)",
+                color: "var(--chart-ink)",
+                border: "1px solid var(--hairline-strong)",
                 borderRadius: 12,
                 fontSize: 12,
                 backdropFilter: "blur(10px)",
@@ -250,7 +251,7 @@ export default function AssetForecast({ symbol }: { symbol: string }) {
               iconType="plainline"
               formatter={(value) => (value === "hist" ? "Histórico" : value === "ens" ? "Ensamble" : value)}
             />
-            <ReferenceLine x={chart.boundary} stroke="rgba(255,255,255,0.18)" strokeDasharray="3 3" />
+            <ReferenceLine x={chart.boundary} stroke="var(--chart-axis)" strokeDasharray="3 3" />
 
             {/* Banda Monte Carlo P5–P95 */}
             <Area
@@ -264,7 +265,7 @@ export default function AssetForecast({ symbol }: { symbol: string }) {
             <Area
               dataKey="bandLo"
               stroke="none"
-              fill="#14161c"
+              fill="var(--panel-solid)"
               legendType="none"
               connectNulls
               isAnimationActive={false}
@@ -289,7 +290,7 @@ export default function AssetForecast({ symbol }: { symbol: string }) {
             <Line
               type="monotone"
               dataKey="hist"
-              stroke="#e6e8ee"
+              stroke="var(--chart-ink)"
               strokeWidth={2}
               dot={false}
               connectNulls
@@ -299,7 +300,7 @@ export default function AssetForecast({ symbol }: { symbol: string }) {
             <Line
               type="monotone"
               dataKey="ens"
-              stroke="#2ec16e"
+              stroke="var(--s-green)"
               strokeWidth={2.6}
               dot={false}
               connectNulls

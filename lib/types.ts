@@ -70,6 +70,9 @@ export interface ForecastResults {
     horizon_days: number;
     n_sims: number;
     rows: number;
+    source?: string;
+    last_close?: string; // YYYY-MM-DD del último cierre usado
+    errors?: string[];
   };
   portfolios: Record<string, PortfolioForecast>;
 }
@@ -198,6 +201,7 @@ export interface MacroIndicator {
   price: number;
   changePct: number;
   category: string;
+  unit: string; // p. ej. "puntos", "USD", "COP por USD"
 }
 
 export interface MacroRegion {
@@ -228,6 +232,7 @@ export interface NewsArticle {
 export interface NewsResponse {
   articles: NewsArticle[];
   query: string;
+  source?: string;
   asOf: string;
 }
 
@@ -239,4 +244,196 @@ export interface ChatMessage {
   content: string;
   agent?: AgentRole;
   timestamp: number;
+}
+
+// ── Commodities: energía y siderurgia ────────────────────────────────────
+export interface CommodityQuote {
+  symbol: string;
+  name: string;
+  group: string; // "Energía y acero" | "Empresas del sector"
+  unit: string;
+  price: number;
+  change: number; // variación absoluta del día
+  changePct: number; // variación diaria (o mensual si frequency = "M")
+  change1mPct: number | null;
+  change3mPct: number | null;
+  asOf: number; // epoch seconds del último dato
+  stale: boolean; // true si el último precio no es de la sesión actual
+  source: string; // "Yahoo" | "FMP" | "FRED"
+  series: SeriesPoint[]; // cierres diarios (~3 meses)
+  hi52: number | null; // rango de 52 semanas
+  lo52: number | null;
+  frequency: "D" | "M";
+  dateOnly?: boolean; // el dato rige por día (TRM): mostrar fecha, no hora // diaria, o referencia mensual
+}
+
+export interface KeyIndicatorsResponse {
+  asOf: string;
+  groups: string[];
+  rows: CommodityQuote[];
+  errors: string[];
+}
+
+export interface BenchmarkPoint {
+  d: string; // YYYY-MM
+  v: number;
+}
+
+export interface BenchmarkSeries {
+  id: string; // id de la serie en FRED
+  name: string;
+  unit: string;
+  origin: string; // fuente primaria (FMI, BLS)
+  last: number;
+  lastDate: string; // YYYY-MM
+  change1mPct: number | null;
+  changeYoYPct: number | null;
+  points: BenchmarkPoint[];
+}
+
+export interface CommoditiesResponse {
+  asOf: string;
+  quotes: CommodityQuote[];
+  benchmarks: BenchmarkSeries[];
+  errors: string[];
+}
+
+// ── PIB: Colombia frente a las potencias (Banco Mundial) ─────────────────
+export interface GdpCountry {
+  iso3: string;
+  name: string;
+  flag: string;
+  role: "base" | "potencia" | "par";
+  year: number; // año del último dato disponible
+  gdpUsd: number | null; // PIB a precios corrientes (USD)
+  growthPct: number | null; // crecimiento real anual
+  perCapitaUsd: number | null;
+  colombiaSharePct: number | null; // PIB de Colombia como % del PIB de este país
+  multiple: number | null; // cuántas veces el PIB de Colombia
+}
+
+export interface GdpResponse {
+  asOf: string;
+  source: string;
+  latestYear: number | null;
+  countries: GdpCountry[];
+  // Una fila por año; claves = iso3.
+  growthSeries: Record<string, number | null>[]; // crecimiento real %
+  ratioSeries: Record<string, number | null>[]; // PIB COL / PIB país, %
+  errors: string[];
+}
+
+// ── Siderurgia: comercio exterior (UN Comtrade) + mercado (curado) ───────
+export interface TradeRow {
+  code: string; // partida / subpartida SA
+  label: string;
+  group: string;
+  importsUsd: Record<string, number | null>; // año → USD CIF
+  exportsUsd: Record<string, number | null>; // año → USD FOB
+  importsKg: number | null; // último año
+  exportsKg: number | null; // último año
+  importsUsdPerTon: number | null; // valor unitario del último año (si hay peso)
+  exportsUsdPerTon: number | null;
+}
+
+export interface TradeOrigin {
+  code: number;
+  name: string;
+  valueUsd: number;
+  sharePct: number;
+}
+
+export interface SteelTrade {
+  source: string;
+  live: boolean; // false → instantánea guardada en el repositorio
+  years: number[];
+  latestYear: number | null;
+  rows: TradeRow[];
+  steelOrigins: TradeOrigin[]; // orígenes de las importaciones del capítulo 72
+  errors: string[];
+}
+
+export interface SteelFigure {
+  label: string;
+  value: string;
+  period: string;
+  sourceId: string;
+}
+
+export interface SteelInput {
+  id: string;
+  name: string;
+  group: string;
+  hs: string[];
+  dependence: "alta" | "media" | "baja" | "nula";
+  dependenceNote: string;
+  national: string;
+  figures: SteelFigure[];
+  routes: string; // rutas siderúrgicas a las que afecta
+  priceRef: string; // precio de referencia a vigilar
+}
+
+export interface SteelSource {
+  id: string;
+  title: string;
+  publisher: string;
+  date: string;
+  url: string;
+}
+
+export interface SteelFobSeries {
+  id: string;
+  name: string;
+  values: (number | null)[]; // una por mes de `months`
+  roundedUntil?: string; // YYYY-MM: hasta ese mes la fuente solo publica enteros
+}
+
+export interface SteelBasePrice {
+  group: string;
+  product: string;
+  cop: number; // COP por tonelada
+  prevCop: number | null; // período anterior
+  period: string;
+  sourceId: string;
+}
+
+export interface SteelPrices {
+  fob: {
+    unit: string;
+    sourceId: string;
+    note: string;
+    months: string[]; // YYYY-MM
+    series: SteelFobSeries[];
+  };
+  trm: number; // COP por USD usada por la UPME
+  base: SteelBasePrice[];
+  baseNote: string;
+}
+
+export interface SteelMarket {
+  asOf: string;
+  prices: SteelPrices;
+  kpis: SteelFigure[];
+  globalFacts: SteelFigure[];
+  nationalFacts: SteelFigure[];
+  inputs: SteelInput[];
+  analysis: {
+    global: string[];
+    national: string[];
+    opportunities: string[];
+    risks: string[];
+    watchlist: { indicator: string; why: string; where: string }[];
+    exposure: {
+      input: string;
+      integrated: string;
+      eaf: string;
+    }[];
+  };
+  sources: SteelSource[];
+}
+
+export interface SteelResponse {
+  asOf: string;
+  trade: SteelTrade;
+  market: SteelMarket;
 }

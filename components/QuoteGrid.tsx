@@ -49,10 +49,11 @@ function QuoteCard({ q }: { q: Quote }) {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}
+        <span className="unit"> {q.currency || "USD"} por acción</span>
       </div>
       <div className={`chg ${up ? "up" : "down"}`}>
         {up ? "+" : ""}
-        {q.change.toFixed(2)} ({up ? "+" : ""}
+        {q.change.toFixed(2)} {q.currency || "USD"} ({up ? "+" : ""}
         {q.changePct.toFixed(2)}%)
       </div>
       <Sparkline data={q.series.map((s) => s.c)} up={up} />

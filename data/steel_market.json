@@ -1,0 +1,336 @@
+{
+  "asOf": "2026-11-27",
+  "kpis": [
+    { "label": "Consumo aparente de acero", "value": "≈3,85 Mt", "period": "2026 (estimado)", "sourceId": "camacero-oct26" },
+    { "label": "Producción nacional", "value": "≈1,2 Mt/año", "period": "ritmo 2026 (≈100 kt/mes)", "sourceId": "camacero-oct26" },
+    { "label": "Importaciones / consumo", "value": "69,7 %", "period": "2026, sin reconstrucción", "sourceId": "camacero-oct26" },
+    { "label": "Consumo per cápita", "value": "≈68 kg", "period": "2025 (Perú 94 · Chile 141)", "sourceId": "camacero-oct26" }
+  ],
+  "globalFacts": [
+    { "label": "Demanda mundial de acero", "value": "1.722 Mt (sin cambio)", "period": "2026, pronóstico", "sourceId": "worldsteel-sro" },
+    { "label": "Demanda mundial de acero", "value": "1.752 Mt (+1,7 %)", "period": "2027, pronóstico", "sourceId": "worldsteel-sro" },
+    { "label": "Demanda de China", "value": "−2,0 %", "period": "2026, pronóstico", "sourceId": "smm-sro" },
+    { "label": "Demanda mundial sin China", "value": "+1,5 % y +4,0 %", "period": "2026 y 2027", "sourceId": "smm-sro" },
+    { "label": "Producción mundial de acero crudo", "value": "1.509,3 Mt (−0,8 %)", "period": "ene–oct 2026, 70 países", "sourceId": "worldsteel-prod" },
+    { "label": "Producción de China", "value": "795,6 Mt (−2,8 %)", "period": "ene–oct 2026", "sourceId": "worldsteel-prod" },
+    { "label": "Exportaciones de acero de China", "value": "95,5 Mt (−2,3 %)", "period": "ene–oct 2026", "sourceId": "china-exports" },
+    { "label": "Sobrecapacidad mundial", "value": "podría superar 700 Mt", "period": "cierre de 2026 (OCDE, citado por ANDI)", "sourceId": "andi-ocde" }
+  ],
+  "nationalFacts": [
+    { "label": "Consumo aparente", "value": "≈3,6 Mt → ≈3,85 Mt (+7,1 %)", "period": "2025 → 2026e", "sourceId": "camacero-oct26" },
+    { "label": "Consumo aparente proyectado", "value": "4,2 Mt (+9,3 %)", "period": "2027, con reconstrucción", "sourceId": "camacero-oct26" },
+    { "label": "Demanda por reconstrucción tras el sismo", "value": "≈577 kt (70 % largos)", "period": "2027–2029", "sourceId": "camacero-oct26" },
+    { "label": "Importaciones totales", "value": "2,5 Mt (+0,8 %)", "period": "ene–nov 2025", "sourceId": "camacero-mar26" },
+    { "label": "Importaciones de planos", "value": "1,6 Mt (+20 %)", "period": "ene–nov 2025", "sourceId": "camacero-mar26" },
+    { "label": "Acero de origen asiático", "value": "310 kt", "period": "2025", "sourceId": "andi-ocde" },
+    { "label": "Arancel a países sin acuerdo comercial", "value": "35 % sobre 14 subpartidas", "period": "Decreto 0264 del 16-mar-2026, vigencia de un año", "sourceId": "decreto-0264" },
+    { "label": "Producción de las siderúrgicas", "value": "≈+5 % anual", "period": "2026, reporte del gremio", "sourceId": "valora-nov26" }
+  ],
+  "inputs": [
+    {
+      "id": "acero",
+      "name": "Acero (producto terminado)",
+      "group": "Acero",
+      "hs": ["72", "73"],
+      "dependence": "alta",
+      "dependenceNote": "Cerca del 70 % del consumo se importa; los planos son alrededor de dos tercios de lo importado.",
+      "national": "Mercado deficitario: la producción local se mantiene estable cerca de 100 kt al mes y se concentra en aceros largos. La ANDI agrupa a las productoras de largos; Acerías Paz del Río es la única siderúrgica integrada y las demás operan con horno eléctrico a partir de chatarra.",
+      "figures": [
+        { "label": "Producción local", "value": "≈1,2 Mt/año", "period": "2026", "sourceId": "camacero-oct26" },
+        { "label": "Producción y capacidad según ANDI", "value": "≈1,6 Mt y 2,6 Mt", "period": "cifra citada en prensa, nov-2026", "sourceId": "chatarra-andi" },
+        { "label": "Consumo aparente", "value": "≈3,85 Mt", "period": "2026e", "sourceId": "camacero-oct26" },
+        { "label": "Laminado en caliente importado", "value": "893 kt", "period": "ene–nov 2025", "sourceId": "camacero-mar26" }
+      ],
+      "routes": "Competencia directa en producto final (ambas rutas)",
+      "priceRef": "HRC EE.UU. (HRC=F) · IPP hierro y acero (WPU101)"
+    },
+    {
+      "id": "carbon-termico",
+      "name": "Carbón térmico",
+      "group": "Carbón",
+      "hs": ["2701"],
+      "dependence": "nula",
+      "dependenceNote": "Exportador neto; las importaciones son marginales.",
+      "national": "La producción total de carbón (térmico, metalúrgico y coque) cayó en 2025 a su nivel más bajo en 22 años. El precio interno sigue la paridad de exportación.",
+      "figures": [
+        { "label": "Precio FOB del carbón térmico colombiano", "value": "US$126,76/t (+11,3 %)", "period": "octubre de 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Producción total de carbón", "value": "53,9 Mt (−9 Mt)", "period": "2025", "sourceId": "fenalcarbon-25" },
+        { "label": "Extracción de carbón mineral", "value": "55 Mt (63 Mt en 2024)", "period": "2025 preliminar", "sourceId": "dane-cae" },
+        { "label": "Producción de carbón según UPME-ANM", "value": "56,2 Mt (62,0 Mt en 2024)", "period": "2025 preliminar", "sourceId": "upme-boletin-34" }
+      ],
+      "routes": "Generación térmica y calor de proceso",
+      "priceRef": "Carbón Australia (PCOALAUUSDM) · Peabody (BTU)"
+    },
+    {
+      "id": "carbon-metalurgico",
+      "name": "Carbón metalúrgico y coque",
+      "group": "Carbón",
+      "hs": ["2701", "2704"],
+      "dependence": "nula",
+      "dependenceNote": "Exportador neto; el riesgo es de precio (paridad de exportación), no de disponibilidad.",
+      "national": "Oferta local en Boyacá, Cundinamarca y Norte de Santander. Colombia exporta más coque del que consume su siderurgia, de modo que el productor local compite con el comprador internacional por el mismo mineral.",
+      "figures": [
+        { "label": "Precio FOB del coque colombiano", "value": "US$243,17/t (+24,3 %)", "period": "septiembre de 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Precio FOB del carbón metalúrgico colombiano", "value": "US$196,76/t (−3,8 %)", "period": "octubre de 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Exportaciones de coque", "value": "2,96 Mt · US$580 M (−15,2 % en valor)", "period": "ene–sep 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Exportaciones de carbón metalúrgico", "value": "1,44 Mt · US$218 M (+14,4 % en valor)", "period": "ene–sep 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Destinos del coque", "value": "Brasil 50,9 % · Turquía 13,0 % · Reino Unido 5,9 %", "period": "ene–sep 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Exportaciones de coque", "value": "3,7 Mt · US$806 M", "period": "2025", "sourceId": "fenalcarbon-25" }
+      ],
+      "routes": "Ruta integrada (coquería y alto horno)",
+      "priceRef": "Coque y carbón metalúrgico FOB Colombia (boletín UPME-ANM) · precio base UPME"
+    },
+    {
+      "id": "mineral-hierro",
+      "name": "Mineral de hierro",
+      "group": "Minerales e insumos",
+      "hs": ["2601"],
+      "dependence": "baja",
+      "dependenceNote": "Abastecimiento local cautivo; las importaciones registradas son marginales.",
+      "national": "Extracción pequeña y concentrada en Boyacá y Cundinamarca, históricamente asociada a la siderúrgica integrada. No existe un mercado local profundo: el precio internacional actúa como costo de oportunidad, no como precio de compra.",
+      "figures": [
+        { "label": "Extracción", "value": "718 kt (517 kt en 2024)", "period": "2025 preliminar", "sourceId": "dane-cae" },
+        { "label": "Reservas (stock de cierre)", "value": "9,09 Mt", "period": "2025 preliminar", "sourceId": "dane-cae" },
+        { "label": "Precio base para regalías", "value": "COP 63.980,52/t", "period": "III trim. 2026", "sourceId": "upme-res-476" }
+      ],
+      "routes": "Ruta integrada (alto horno)",
+      "priceRef": "Mineral 62 % Fe (TIO=F · PIORECRUSDM)"
+    },
+    {
+      "id": "chatarra",
+      "name": "Chatarra ferrosa",
+      "group": "Minerales e insumos",
+      "hs": ["7204"],
+      "dependence": "baja",
+      "dependenceNote": "Se abastece localmente; el límite es la generación interna de chatarra.",
+      "national": "Insumo principal del horno eléctrico. La recolección local es la restricción física de la producción semi-integrada: solo Diaco declara reciclar más de un millón de toneladas al año.",
+      "figures": [
+        { "label": "Reciclaje declarado por Diaco", "value": ">1 Mt/año", "period": "vigente", "sourceId": "andi-camara" }
+      ],
+      "routes": "Ruta de horno eléctrico; carga metálica parcial en la integrada",
+      "priceRef": "Sin referencia líquida local; seguir HRC=F y el diferencial acero–chatarra"
+    },
+    {
+      "id": "fundentes",
+      "name": "Caliza y cal",
+      "group": "Minerales e insumos",
+      "hs": ["2521", "2522"],
+      "dependence": "nula",
+      "dependenceNote": "Mineral local; comercio exterior marginal.",
+      "national": "Abastecimiento regional de canteras propias o cercanas. El costo depende de la calidad del yacimiento (sílice) y del flete, no del mercado internacional.",
+      "figures": [
+        { "label": "Producción nacional de caliza", "value": "20,0 Mt (19,6 Mt en 2024)", "period": "2025 preliminar", "sourceId": "upme-boletin-34" },
+        { "label": "Precio base de la caliza para cal o cemento", "value": "COP 10.803,75/t", "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" },
+        { "label": "Precio base de la dolomita", "value": "COP 40.669,68/t", "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" }
+      ],
+      "routes": "Ambas rutas (escorificación); mayor consumo en la integrada",
+      "priceRef": "Costos locales: diésel, flete y energía de calcinación"
+    },
+    {
+      "id": "ferroaleaciones",
+      "name": "Ferroaleaciones y electrodos",
+      "group": "Minerales e insumos",
+      "hs": ["7202", "854511"],
+      "dependence": "alta",
+      "dependenceNote": "Las ferroaleaciones de afino y los electrodos de grafito se importan.",
+      "national": "Colombia exporta ferroníquel, pero las ferroaleaciones de afino (ferromanganeso, ferrosilicio) y los electrodos de grafito llegan del exterior. Son partidas pequeñas en valor y críticas en operación: exposición directa al dólar y a la logística.",
+      "figures": [
+        { "label": "Exportaciones de ferroníquel", "value": "75,4 kt · US$270 M (−22,1 % en valor)", "period": "ene–sep 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Precio base del mineral de manganeso", "value": "COP 359.560,51/t", "period": "III trim. 2026", "sourceId": "upme-res-476" }
+      ],
+      "routes": "Ambas rutas (afino); electrodos solo en horno eléctrico y horno cuchara",
+      "priceRef": "USD/COP · valor unitario de importación (Comtrade)"
+    },
+    {
+      "id": "combustibles",
+      "name": "Combustibles líquidos",
+      "group": "Combustibles",
+      "hs": ["2709", "2710"],
+      "dependence": "media",
+      "dependenceNote": "La gasolina tiene importación estructural; en diésel las fuentes difieren.",
+      "national": "Dos refinerías atienden la mayor parte de la demanda. La ACP ubica la gasolina corriente importada en 43 % en 2026; para el diésel prevé importaciones estructurales más adelante, mientras un directivo de Chevron las sitúa ya cerca de 20 % de la demanda. El precio del diésel está subsidiado.",
+      "figures": [
+        { "label": "Carga de refinerías", "value": "428 mil barriles/día (+5,9 %)", "period": "1S-2026", "sourceId": "ecopetrol-1s26" },
+        { "label": "Gasolina corriente importada", "value": "43 %", "period": "2026", "sourceId": "acp-ago26" },
+        { "label": "Subsidio al diésel", "value": "≈COP 8.000 por galón", "period": "1S-2026", "sourceId": "acp-ago26" }
+      ],
+      "routes": "Minería propia, transporte de materias primas y despachos",
+      "priceRef": "Brent (BZ=F) · WTI (CL=F) · política de precios del diésel"
+    },
+    {
+      "id": "gas",
+      "name": "Gas natural",
+      "group": "Gas",
+      "hs": ["2711", "271111"],
+      "dependence": "alta",
+      "dependenceNote": "El gas importado pasó de cero a más de 40 % de la oferta en dos años.",
+      "national": "La producción nacional cayó cerca de 30 % en tres años y el país importa gas licuado desde diciembre de 2024. El gas importado es más caro y está indexado al mercado internacional; parte de la gran industria ya sustituyó el energético.",
+      "figures": [
+        { "label": "Gas importado / demanda", "value": "41 %", "period": "septiembre de 2026", "sourceId": "gas-sep26" },
+        { "label": "Oferta importada vs. nacional", "value": "517 vs. 654 GBTUD (44 %)", "period": "noviembre de 2026", "sourceId": "gas-nov26" },
+        { "label": "Grandes consumidores industriales que dejaron el gas", "value": "≈16 %", "period": "inicios de 2026", "sourceId": "gas-moodys" }
+      ],
+      "routes": "Hornos de recalentamiento de laminación (ambas rutas)",
+      "priceRef": "Gas Europa (PNGASEUUSDM) · Henry Hub (NG=F)"
+    },
+    {
+      "id": "oxigeno",
+      "name": "Oxígeno y gases del aire",
+      "group": "Gases del aire",
+      "hs": ["280440", "280430", "280421"],
+      "dependence": "nula",
+      "dependenceNote": "No se importa: se produce localmente. El riesgo es la concentración de proveedores y el costo eléctrico.",
+      "national": "El oxígeno casi no se comercia entre países; se produce en plantas de separación de aire cercanas al consumidor o dentro de la planta siderúrgica. La oferta está en pocas compañías (Messer, Linde, Cryogas, Air Liquide, Oxicol) y su costo es, sobre todo, energía eléctrica. El argón sí registra importaciones.",
+      "figures": [
+        { "label": "Plantas de producción de oxígeno", "value": "8", "period": "2021", "sourceId": "lr-oxigeno-2021" },
+        { "label": "Cuota de Messer en gases industriales, Costa Norte", "value": "90 %", "period": "2025, solicitud ante la SIC", "sourceId": "oxicol-sic" }
+      ],
+      "routes": "Convertidor al oxígeno (integrada) · lanzas e inyección en horno eléctrico",
+      "priceRef": "Precio de la electricidad · contrato de suministro on-site"
+    }
+  ],
+  "analysis": {
+    "global": [
+      "La demanda mundial de acero está estancada: worldsteel la mantiene en 1.722 Mt para 2026 y aplaza la recuperación a 2027. El freno es China, cuya demanda cae por construcción e infraestructura, mientras el resto del mundo crece 1,5 %.",
+      "China produce menos (−2,8 % a octubre) pero sigue exportando cerca de 9,5 Mt al mes: 95,5 Mt en diez meses equivalen a un ritmo anual de unas 115 Mt (cálculo propio). Ese excedente, sumado a una sobrecapacidad mundial que la OCDE ve por encima de 700 Mt, mantiene la presión sobre los precios en los mercados abiertos.",
+      "Las barreras comerciales fragmentan el precio del acero. El laminado en caliente en EE.UU. ronda su máximo de 52 semanas (ver HRC=F en el panel) mientras China sigue colocando su excedente fuera. El argumento de la ANDI es que el acero que no entra a los mercados protegidos se desvía hacia países con menor defensa comercial, Colombia entre ellos.",
+      "El costo energético subió durante 2026: el Brent promedió 102 USD por barril en septiembre, el gas en Europa 25,5 USD/MMBtu y el carbón térmico australiano 154 USD por tonelada, frente a 112,5 un año antes (FMI vía FRED). El mineral de hierro, en cambio, sigue cerca de 100 USD por tonelada. El resultado es un margen estrecho para quien fabrica acero con energía cara."
+    ],
+    "national": [
+      "Colombia es un mercado deficitario: produce alrededor de 1,2 Mt y consume 3,85 Mt. Casi el 70 % del acero es importado y dos tercios de esas importaciones son planos, un segmento que las siderúrgicas locales, productoras de largos, no abastecen. La competencia directa con el producto importado está en los largos.",
+      "La demanda mejora. Camacero estima un consumo 7,1 % mayor en 2026 y proyecta 4,2 Mt en 2027 por la reconstrucción tras el sismo, que sumaría unas 577 kt entre 2027 y 2029, 70 % en productos largos. El propio gremio advierte que casi toda la demanda adicional se cubriría con importaciones si la producción local no aumenta.",
+      "La protección es temporal. El arancel de 35 % del Decreto 0264 rige por un año desde marzo de 2026 y cubre 14 subpartidas de países sin acuerdo comercial; los productores ya piden mantenerlo. El acero asiático pasó de casi cero antes de 2023 a 310 kt en 2025.",
+      "La energía es el frente de costos más débil. El gas importado ya supera el 40 % de la oferta, la producción nacional cae y cerca de 16 % de los grandes consumidores industriales cambiaron de energético. Con El Niño, la generación térmica con diésel presiona además el precio de la electricidad.",
+      "En materias primas el país es autosuficiente pero no está aislado del precio: exporta 3,7 Mt de coque y 1,7 Mt de carbón metalúrgico, así que el comprador local paga paridad de exportación. La producción total de carbón está en su mínimo de 22 años."
+    ],
+    "opportunities": [
+      "Reconstrucción: demanda adicional concentrada en largos (barra corrugada, alambrón, perfiles), el segmento que sí se fabrica en el país.",
+      "Sustitución de importaciones en largos mientras rija el arancel de 35 %.",
+      "Integración hacia atrás: mineral, carbón y caliza locales protegen del flete y del dólar frente a quien importa palanquilla o producto terminado.",
+      "Subproductos y energía propia (gases de proceso, cogeneración) para reducir la exposición al gas y a la tarifa eléctrica."
+    ],
+    "risks": [
+      "Vencimiento o debilitamiento del arancel en marzo de 2027 con las exportaciones chinas aún cerca de 115 Mt anuales.",
+      "Gas natural: precio indexado al mercado internacional y riesgo de racionamiento a la industria si no entra más capacidad de regasificación.",
+      "Electricidad más cara en un evento de El Niño, crítico para el horno eléctrico y para la separación de aire (oxígeno).",
+      "Paridad de exportación del coque: un repunte del carbón metalúrgico encarece la ruta integrada aunque el mineral sea local.",
+      "Tasa de cambio: ferroaleaciones, electrodos, refractarios y repuestos se pagan en dólares."
+    ],
+    "watchlist": [
+      { "indicator": "HRC EE.UU. y exportaciones de China", "why": "Marcan el piso del precio de importación del acero", "where": "Panel de precios · hechos globales" },
+      { "indicator": "Importaciones del capítulo 72 por origen", "why": "Mide si el arancel está desviando o frenando el acero asiático", "where": "Flujos comerciales (Comtrade)" },
+      { "indicator": "Gas importado como % de la oferta", "why": "Anticipa el costo del gas industrial y el riesgo de recortes", "where": "Matriz de insumos · gas" },
+      { "indicator": "Carbón térmico y Brent", "why": "Costo de la energía y del transporte; señal para el precio del coque", "where": "Referencias mensuales (FRED)" },
+      { "indicator": "Mineral de hierro 62 % Fe", "why": "Costo de oportunidad del mineral propio y costo de los competidores integrados", "where": "Panel de precios" },
+      { "indicator": "USD/COP", "why": "Traduce todos los precios internacionales a la paridad de importación local", "where": "Macro · Colombia" },
+      { "indicator": "Vigencia del Decreto 0264", "why": "La protección arancelaria vence en marzo de 2027 salvo prórroga", "where": "Hechos nacionales" }
+    ],
+    "exposure": [
+      { "input": "Mineral de hierro", "integrated": "Alta · carga principal del alto horno", "eaf": "Nula" },
+      { "input": "Carbón coquizable y coque", "integrated": "Alta · reductor y combustible", "eaf": "Baja · carburante" },
+      { "input": "Chatarra", "integrated": "Media · carga del convertidor", "eaf": "Alta · carga principal" },
+      { "input": "Electricidad", "integrated": "Media", "eaf": "Alta · fusión" },
+      { "input": "Gas natural", "integrated": "Media · recalentamiento (sustituible con gases de proceso)", "eaf": "Alta · recalentamiento" },
+      { "input": "Oxígeno", "integrated": "Alta · convertidor", "eaf": "Media · lanzas" },
+      { "input": "Caliza y cal", "integrated": "Alta", "eaf": "Media" },
+      { "input": "Ferroaleaciones", "integrated": "Media", "eaf": "Media" },
+      { "input": "Electrodos de grafito", "integrated": "Baja · horno cuchara", "eaf": "Alta" },
+      { "input": "Diésel", "integrated": "Media · minería y transporte interno", "eaf": "Baja · logística" }
+    ]
+  },
+  "sources": [
+    { "id": "camacero-oct26", "title": "Reconstrucción por el sismo llevaría consumo de acero a 4,2 millones de toneladas en 2027", "publisher": "La República (Camacero)", "date": "2026-10-26", "url": "https://www.larepublica.co/economia/reconstruccion-por-el-sismo-llevaria-consumo-de-acero-a-4-2-millones-de-toneladas-en-2027-4511294" },
+    { "id": "camacero-mar26", "title": "Camacero prevé un crecimiento de la industria de acero de entre 2% y 3% en 2026", "publisher": "La República (Camacero)", "date": "2026-03-11", "url": "https://amp.larepublica.co/economia/camacero-preve-un-crecimiento-de-la-industria-de-acero-de-entre-2-y-3-en-2026-4347059" },
+    { "id": "andi-ocde", "title": "Acero asiático en Colombia: ANDI pide defensa comercial", "publisher": "PymeNoticias (ANDI · OCDE)", "date": "2026-11", "url": "https://www.pymenoticias.com/post/acero-asiatico-colombia-andi-defensa-comercial" },
+    { "id": "decreto-0264", "title": "Gobierno colombiano fija arancel del 35% al acero y el metal de países sin acuerdo comercial", "publisher": "Portafolio", "date": "2026-03-17", "url": "https://www.portafolio.co/negocios/comercio/gobierno-colombiano-fija-arancel-del-35-al-acero-y-el-metal-de-paises-sin-acuerdo-comercial-como-china-y-rusia-490219" },
+    { "id": "valora-nov26", "title": "Productores de acero piden arancel del 35 % para enfrentar la competencia de China", "publisher": "Valora Analitik", "date": "2026-11-10", "url": "https://www.valoraanalitik.com/productores-de-acero-piden-arancel-del-35-para-enfrentar-la-competencia-de-china/" },
+    { "id": "andi-camara", "title": "Cámara Colombiana de Productores de Acero · afiliados", "publisher": "ANDI", "date": "2026", "url": "https://www.andi.com.co/Home/Camara/6" },
+    { "id": "chatarra-andi", "title": "¿Cuánto acero necesita la reconstrucción tras el terremoto?", "publisher": "Chatarra.com.co (cita a ANDI y Camacero)", "date": "2026-11", "url": "https://www.chatarra.com.co/cuanto-acero-reconstruccion-terremoto-colombia/" },
+    { "id": "fenalcarbon-25", "title": "Producción de carbón en Colombia cae a su nivel más bajo en dos décadas", "publisher": "El Colombiano (Fenalcarbón)", "date": "2026-05", "url": "https://www.elcolombiano.com/negocios/colombia-produccion-carbon-minimo-20-anos-caida-2025-mercado-global-FA36146641" },
+    { "id": "dane-cae", "title": "Cuenta ambiental y económica de activos de los recursos minerales y energéticos 2024p–2025pr", "publisher": "DANE", "date": "2026-07-17", "url": "https://www.dane.gov.co/files/operaciones/CAE-ARME/bol-CAEARME-2025pr.pdf" },
+    { "id": "gas-sep26", "title": "El 40% del gas que consumen los colombianos ya es importado", "publisher": "El Colombiano", "date": "2026-10", "url": "https://www.elcolombiano.com/negocios/colombia-aumenta-importaciones-gas-deficit-FN42297156" },
+    { "id": "gas-nov26", "title": "Gas importado rompe el techo de las proyecciones y ya representa 44 % de la oferta local", "publisher": "Valora Analitik", "date": "2026-11", "url": "https://www.valoraanalitik.com/?p=623292" },
+    { "id": "gas-moodys", "title": "Déficit de gas en Colombia podría llegar hasta 39 % de la demanda en 2026", "publisher": "Valora Analitik", "date": "2026-06", "url": "https://www.valoraanalitik.com/deficit-de-gas-en-colombia-podria-llegar-hasta-39-de-la-demanda-en-2026/" },
+    { "id": "acp-ago26", "title": "Gobierno subsidió $8.000 del galón de diésel y $1.500 de corriente a junio", "publisher": "La República (ACP)", "date": "2026-08-04", "url": "https://www.larepublica.co/economia/gobierno-subsidio-8-500-del-galon-de-diesel-y-1-000-de-corriente-a-junio-4450936" },
+    { "id": "ecopetrol-1s26", "title": "Ecopetrol eleva 5,9% la carga de sus refinerías", "publisher": "Portafolio", "date": "2026-08", "url": "https://www.portafolio.co/energia/ecopetrol-eleva-5-9-la-carga-de-sus-refinerias-y-aumenta-produccion-de-gasolina-diesel-y-jet-a1-en-2026-este-ano-500911" },
+    { "id": "chevron-diesel", "title": "Colombia importará la mitad de la gasolina que consume en 2031: la proyección de Chevron", "publisher": "Portafolio", "date": "2026", "url": "https://www.portafolio.co/energia/colombia-importara-la-mitad-de-la-gasolina-que-consume-en-2031-la-proyeccion-de-chevron-505776" },
+    { "id": "oxicol-sic", "title": "Oxicol busca ganar terreno en la Costa norte con planta de Galapa de Cryogas", "publisher": "La República", "date": "2026-09-15", "url": "https://www.larepublica.co/empresas/oxicol-busca-ganar-terreno-en-la-costa-con-planta-de-cryogas-4481645" },
+    { "id": "lr-oxigeno-2021", "title": "Hay 80.000 cilindros de oxígeno que están abandonados o guardados", "publisher": "La República (ANDI)", "date": "2021", "url": "https://www.larepublica.co/empresas/hay-80-000-cilindros-de-oxigeno-que-estan-abandonados-o-guardados-3161248" },
+    { "id": "worldsteel-sro", "title": "worldsteel Short Range Outlook October 2026", "publisher": "World Steel Association", "date": "2026-10-12", "url": "https://worldsteel.org/media/press-releases/2026/worldsteel-short-range-outlook-october-2026/" },
+    { "id": "smm-sro", "title": "worldsteel: Global steel demand flat at 1,722 Mt in 2026, up 1.7% in 2027", "publisher": "Shanghai Metals Market", "date": "2026-10", "url": "https://news.metal.com/newscontent/104171736-worldsteel-global-steel-demand-flat-at-1722-mt-in-2026-up-17-in-2027" },
+    { "id": "worldsteel-prod", "title": "Global crude steel output falls 1.1% in October", "publisher": "Investing.com (worldsteel)", "date": "2026-11-24", "url": "https://www.investing.com/news/commodities-news/global-crude-steel-output-falls-11-in-october-93CH-5047435" },
+    { "id": "china-exports", "title": "China cut steel exports by 2.3% y/y in 10 months", "publisher": "GMK Center (aduanas de China)", "date": "2026-11", "url": "https://gmk.center/en/news/china-cut-steel-exports-by-2-3-y-y-in-10-months/" },
+    { "id": "comtrade", "title": "UN Comtrade · comercio de Colombia por partida arancelaria", "publisher": "Naciones Unidas", "date": "consulta en vivo", "url": "https://comtradeplus.un.org/" },
+    { "id": "fred", "title": "Precios de commodities del FMI e IPP del BLS", "publisher": "FRED · Federal Reserve Bank of St. Louis", "date": "consulta en vivo", "url": "https://fred.stlouisfed.org/" },
+    { "id": "upme-boletin-34", "title": "Boletín estadístico Minería en cifras No. 34", "publisher": "UPME · ANM", "date": "2026-10", "url": "https://docs.upme.gov.co/SIMEC/SIMCO/Cifras-Sectoriales/BoletinMinerales/Boletin_34_mineria_en_cifras_octubre_2026.pdf" },
+    { "id": "upme-res-708", "title": "Resolución 708 de 2026: precio base del carbón, cuarto trimestre de 2026", "publisher": "UPME", "date": "2026-09-29", "url": "https://docs.upme.gov.co/Normatividad/708_2026.pdf" },
+    { "id": "upme-res-476", "title": "Resolución 476 de 2026: precios base de mineral de hierro y minerales metálicos, tercer trimestre de 2026 (soporte técnico)", "publisher": "UPME", "date": "2026-06-30", "url": "https://docs.upme.gov.co/Normatividad/Soporte_tecnico_Metalicos_2doTrim2026_Cir476_2026.pdf" },
+    { "id": "upme-res-213", "title": "Resolución 213 de 2026: precios base de minerales no metálicos, anualidad 2026-2027 (anexo técnico)", "publisher": "UPME", "date": "2026-03-31", "url": "https://docs.upme.gov.co/Normatividad/Anexo_tecnico_Res_213_2026_no_metalicos.pdf" }
+  ],
+  "prices": {
+    "fob": {
+      "unit": "USD/t",
+      "sourceId": "upme-boletin-34",
+      "note": "Precio promedio mensual FOB Colombia. Carbón térmico y metalúrgico: Baltic Exchange y Argus Media; el metalúrgico de mayo a agosto está redondeado a entero, como en la gráfica del boletín. Coque: estimación de la UPME y la ANM con el valor y la cantidad exportados (DIAN/DANE), con un mes de rezago.",
+      "months": ["2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10"],
+      "series": [
+        { "id": "coque", "name": "Coque", "values": [211.89, 215.0, 228.71, 195.6, 243.17, null] },
+        { "id": "metalurgico", "name": "Carbón metalúrgico", "values": [179, 181, 167, 169, 204.54, 196.76], "roundedUntil": "2026-08" },
+        { "id": "termico", "name": "Carbón térmico", "values": [91.87, 107.02, 100.76, 104.86, 113.85, 126.76] }
+      ]
+    },
+    "trm": 3655.5,
+    "base": [
+      { "group": "Carbón", "product": "Metalúrgico · consumo interno", "cop": 330066.86, "prevCop": 289629.93, "period": "IV trim. 2026", "sourceId": "upme-res-708" },
+      { "group": "Carbón", "product": "Metalúrgico · exportación (Interior)", "cop": 424485.74, "prevCop": 325481.41, "period": "IV trim. 2026", "sourceId": "upme-res-708" },
+      { "group": "Carbón", "product": "Térmico · consumo interno", "cop": 230082.72, "prevCop": 222641.32, "period": "IV trim. 2026", "sourceId": "upme-res-708" },
+      { "group": "Carbón", "product": "Antracita · consumo interno", "cop": 607706.49, "prevCop": 659983.94, "period": "IV trim. 2026", "sourceId": "upme-res-708" },
+      { "group": "Minerales metálicos", "product": "Mineral de hierro", "cop": 63980.52, "prevCop": null, "period": "III trim. 2026", "sourceId": "upme-res-476" },
+      { "group": "Minerales metálicos", "product": "Mineral de manganeso", "cop": 359560.51, "prevCop": 337718.05, "period": "III trim. 2026", "sourceId": "upme-res-476" },
+      { "group": "Minerales metálicos", "product": "Magnesita", "cop": 248646.58, "prevCop": 233541.89, "period": "III trim. 2026", "sourceId": "upme-res-476" },
+      { "group": "Fundentes y refractarios", "product": "Caliza para cal o cemento", "cop": 10803.75, "prevCop": null, "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" },
+      { "group": "Fundentes y refractarios", "product": "Dolomita", "cop": 40669.68, "prevCop": null, "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" },
+      { "group": "Fundentes y refractarios", "product": "Fluorita", "cop": 246378.39, "prevCop": null, "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" },
+      { "group": "Fundentes y refractarios", "product": "Cuarzo", "cop": 25702.76, "prevCop": null, "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" },
+      { "group": "Fundentes y refractarios", "product": "Arcillas refractarias", "cop": 35303.61, "prevCop": null, "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" }
+    ],
+    "baseNote": "Precios base en boca de mina que fija la UPME para liquidar regalías. No son precios de mercado puestos en planta: sirven como referencia oficial y comparable entre trimestres."
+  },
+  "tradeSnapshot": {
+    "year": 2025,
+    "retrieved": "2026-11-27",
+    "imports": {
+      "72": { "usd": 1814604238.21 },
+      "73": { "usd": 1092917345.77 },
+      "2601": { "usd": 31531.61 },
+      "7204": { "usd": 6405478.74 },
+      "7202": { "usd": 31078903.43, "kg": 22688398.481 },
+      "2521": { "usd": 6180.04, "kg": 8213 },
+      "2522": { "usd": 21627.39 },
+      "854511": { "usd": 7920429.96 },
+      "2701": { "usd": 1101528.57, "kg": 10279366.9 },
+      "2704": { "usd": 171099.62, "kg": 1265336.24 },
+      "2709": { "usd": 134055607.11 },
+      "2710": { "usd": 4639729128.54 },
+      "2711": { "usd": 959891127.98 },
+      "280440": { "usd": 84297.48, "kg": 7507.65 },
+      "280430": { "usd": 212845.79, "kg": 2731.54 },
+      "280421": { "usd": 1796960.55, "kg": 2182622.24 }
+    },
+    "exports": {
+      "72": { "usd": 580217985.7 },
+      "73": { "usd": 262640192.33 },
+      "7204": { "usd": 16398641.48, "kg": 14311411.15 },
+      "7202": { "usd": 475885128.75, "kg": 144713850 },
+      "2522": { "usd": 568729.9, "kg": 2852000 },
+      "2701": { "usd": 4095057318.15, "kg": 47796138193.4 },
+      "2704": { "usd": 806520906.56, "kg": 3689349442.28 },
+      "2709": { "usd": 9930919822.17, "kg": 23885871792.72 },
+      "2710": { "usd": 2283940170.03, "kg": 4606917868.35 },
+      "2711": { "usd": 27417.6, "kg": 10418.76 },
+      "280440": { "usd": 236723.22, "kg": 663168.93 },
+      "280430": { "usd": 148384.08, "kg": 311563 },
+      "280421": { "usd": 205235.95, "kg": 162360 }
+    }
+  }
+}

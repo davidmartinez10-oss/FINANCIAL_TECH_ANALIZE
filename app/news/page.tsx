@@ -9,7 +9,8 @@ const SECTORS = [
   { key: "ai", label: "IA" },
   { key: "energy", label: "Energía" },
   { key: "economy", label: "Economía" },
-  { key: "latam", label: "LatAm" },
+  { key: "latam", label: "Colombia y LatAm" },
+  { key: "steel", label: "Acero y minería" },
 ];
 
 function timeAgo(ts: number): string {
@@ -78,7 +79,8 @@ export default function NewsPage() {
         <div>
           <h1>Noticias Financieras</h1>
           <div className="sub">
-            Macro y micro · Por sector · Fuente: Yahoo Finance
+            Macro y micro · por canal · {data?.source ?? "Yahoo Finance"} · titulares en inglés,
+            del más reciente al más antiguo
           </div>
         </div>
       </header>

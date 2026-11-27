@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import type { ChatMessage, AgentRole } from "@/lib/types";
 
 const AGENT_COLORS: Record<AgentRole, string> = {
-  analyst: "#4c8dff",
-  economist: "#2ec16e",
-  financier: "#f5c451",
-  fallback: "#ff9f43",
+  analyst: "var(--s-blue)",
+  economist: "var(--s-green)",
+  financier: "var(--s-yellow)",
+  fallback: "var(--s-orange)",
 };
 
 const AGENT_LABELS: Record<AgentRole, string> = {
@@ -254,8 +254,8 @@ export default function AssistantPage() {
         className="note"
         style={{ fontSize: 11 }}
       >
-        Requiere <code>ANTHROPIC_API_KEY</code> configurada en variables de entorno de Vercel.
-        Las respuestas son generadas por IA y no constituyen asesoría de inversión.
+        Requiere <code>GROQ_API_KEY</code> configurada en variables de entorno de Vercel.
+        Las respuestas son generadas por IA (GROQ) y no constituyen asesoría de inversión.
       </div>
     </main>
   );
