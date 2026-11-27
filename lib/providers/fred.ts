@@ -8,6 +8,7 @@
 // por FRED; el índice de precios del acero es del BLS de EE.UU.
 // ─────────────────────────────────────────────────────────────────────────
 import type { BenchmarkPoint } from "@/lib/types";
+import { fetchT } from "@/lib/http";
 
 const FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv";
 
@@ -34,7 +35,7 @@ export async function fetchFredSeries(
   id: string,
   fromYear = 2016
 ): Promise<BenchmarkPoint[]> {
-  const res = await fetch(`${FRED_CSV}?id=${encodeURIComponent(id)}`, {
+  const res = await fetchT(`${FRED_CSV}?id=${encodeURIComponent(id)}`, {
     headers: { "User-Agent": "Mozilla/5.0 (compatible; MacroMarkets/1.0)" },
     next: { revalidate: 43_200 },
   });

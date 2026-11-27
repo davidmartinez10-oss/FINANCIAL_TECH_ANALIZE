@@ -3,6 +3,8 @@
 // Cada fila trae el valor y el rango de fechas en el que rige (los fines de
 // semana y festivos comparten una sola fila).
 
+import { fetchT } from "@/lib/http";
+
 const TRM_URL =
   "https://www.datos.gov.co/resource/32sa-8pi3.json?$order=vigenciadesde%20DESC&$limit=";
 
@@ -28,7 +30,7 @@ export function parseTrm(rows: unknown): TrmPoint[] {
 
 // Último año de TRM (≈ 250 filas hábiles).
 export async function fetchTrm(limit = 260): Promise<TrmPoint[]> {
-  const res = await fetch(TRM_URL + limit, {
+  const res = await fetchT(TRM_URL + limit, {
     headers: { Accept: "application/json" },
     cache: "no-store",
   });

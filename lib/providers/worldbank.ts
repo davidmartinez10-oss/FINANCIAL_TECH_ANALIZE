@@ -3,6 +3,8 @@
 // Sin API key. Datos anuales; la respuesta es `[metadatos, registros]`.
 // ─────────────────────────────────────────────────────────────────────────
 
+import { fetchT } from "@/lib/http";
+
 const WB_BASE = "https://api.worldbank.org/v2";
 
 export interface WbPoint {
@@ -37,7 +39,7 @@ export async function fetchWorldBank(
   const url =
     `${WB_BASE}/country/${countries.join(";")}/indicator/${indicator}` +
     `?format=json&date=${fromYear}:${toYear}&per_page=2000`;
-  const res = await fetch(url, { next: { revalidate: 86_400 } });
+  const res = await fetchT(url, { next: { revalidate: 86_400 } }, 12_000);
   if (!res.ok) throw new Error(`Banco Mundial HTTP ${res.status} (${indicator})`);
   return parseWorldBank(await res.json());
 }

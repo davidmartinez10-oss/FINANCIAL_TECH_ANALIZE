@@ -9,6 +9,8 @@
 // (kg) no siempre viene informado a nivel de capítulo.
 // ─────────────────────────────────────────────────────────────────────────
 
+import { fetchT } from "@/lib/http";
+
 const COMTRADE = "https://comtradeapi.un.org/public/v1/preview/C/A/HS";
 export const COLOMBIA = 170;
 
@@ -61,11 +63,24 @@ export async function fetchComtrade(opts: {
   const hit = cache.get(url);
   if (hit && Date.now() - hit.at < TTL_MS) return hit.data;
 
-  const res = await fetch(url, {
-    headers: { Accept: "application/json" },
-    next: { revalidate: 86_400 },
-  });
-  if (!res.ok) throw new Error(`Comtrade HTTP ${res.status} (${opts.period})`);
+  // El endpoint público limita la frecuencia por IP y las de Vercel son
+  // compartidas: ante un 429 se espera (lo que pida Retry-After, máx. 5 s) y
+  // se reintenta una vez. Las respuestas buenas quedan 24 h en la caché de
+  // datos, así que los años que sí cargan no se vuelven a pedir.
+  const init = { headers: { Accept: "application/json" }, next: { revalidate: 86_400 } };
+  let res = await fetchT(url, init);
+  if (res.status === 429) {
+    const wait = Math.min(Number(res.headers.get("retry-after")) || 2.5, 5);
+    await new Promise((r) => setTimeout(r, wait * 1000));
+    res = await fetchT(url, init);
+  }
+  if (!res.ok) {
+    throw new Error(
+      res.status === 429
+        ? `Comtrade limitó las consultas (HTTP 429, ${opts.period})`
+        : `Comtrade HTTP ${res.status} (${opts.period})`
+    );
+  }
   const data = parseComtrade(await res.json());
   cache.set(url, { at: Date.now(), data });
   return data;

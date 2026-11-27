@@ -10,6 +10,7 @@
 // ─────────────────────────────────────────────────────────────────────────
 import type { Quote, SeriesPoint, NewsArticle } from "@/lib/types";
 
+import { fetchT } from "@/lib/http";
 const YF_HOSTS = [
   "https://query1.finance.yahoo.com",
   "https://query2.finance.yahoo.com",
@@ -47,7 +48,7 @@ async function fetchYF(path: string): Promise<any> {
   for (const host of YF_HOSTS) {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        const res = await fetch(host + path, {
+        const res = await fetchT(host + path, {
           headers: BROWSER_HEADERS,
           cache: "no-store",
         });

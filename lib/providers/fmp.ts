@@ -22,6 +22,7 @@ import type {
 import { ASSET_NAMES } from "@/lib/providers/yahoo";
 import { STATIC_PROFILES } from "@/lib/data/company-profiles";
 
+import { fetchT } from "@/lib/http";
 const FMP_BASE = "https://financialmodelingprep.com/api/v3";
 
 export function fmpEnabled(): boolean {
@@ -35,7 +36,7 @@ function key(): string {
 async function fmpGet(path: string, revalidate = 60): Promise<any> {
   const sep = path.includes("?") ? "&" : "?";
   const url = `${FMP_BASE}${path}${sep}apikey=${key()}`;
-  const res = await fetch(url, { next: { revalidate } });
+  const res = await fetchT(url, { next: { revalidate } });
   if (!res.ok) throw new Error(`FMP HTTP ${res.status} (${path.split("?")[0]})`);
   const json = await res.json();
   if (json && typeof json === "object" && "Error Message" in json) {

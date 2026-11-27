@@ -23,6 +23,7 @@ import type {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60; // varias consultas secuenciales a Comtrade con pausas
 
 const HS: { code: string; label: string; group: string }[] = [
   { code: "72", label: "Hierro y acero (cap. 72)", group: "Acero" },
@@ -122,7 +123,7 @@ async function loadTrade(snap: Snapshot): Promise<SteelTrade> {
     latest = await worldTotals(latestYear);
     if (latest.length === 0) {
       latestYear -= 1;
-      await sleep(400);
+      await sleep(1000);
       latest = await worldTotals(latestYear);
     }
   } catch (e) {
@@ -141,7 +142,7 @@ async function loadTrade(snap: Snapshot): Promise<SteelTrade> {
   for (const y of years) {
     if (byYear.has(y)) continue;
     try {
-      await sleep(400);
+      await sleep(1000);
       byYear.set(y, await worldTotals(y));
     } catch (e) {
       errors.push(`${y}: ${String((e as Error).message)}`);
@@ -168,7 +169,7 @@ async function loadTrade(snap: Snapshot): Promise<SteelTrade> {
   // Orígenes de las importaciones de acero (cap. 72), último año.
   let steelOrigins: TradeOrigin[] = [];
   try {
-    await sleep(400);
+    await sleep(1000);
     const partners = await fetchComtrade({
       period: latestYear,
       cmdCodes: ["72"],
@@ -216,10 +217,13 @@ export async function GET() {
   };
   return Response.json(body, {
     headers: {
-      // Datos anuales: 6 h en CDN si vienen en vivo; reintento pronto si no.
-      "Cache-Control": trade.live
-        ? "s-maxage=21600, stale-while-revalidate=86400"
-        : "s-maxage=300, stale-while-revalidate=600",
+      // Datos anuales: 6 h en CDN solo si la respuesta está completa. Si faltó
+      // algún año u orígenes (Comtrade limita la frecuencia), caché corta para
+      // que la siguiente visita complete lo que falta.
+      "Cache-Control":
+        trade.live && trade.errors.length === 0
+          ? "s-maxage=21600, stale-while-revalidate=86400"
+          : "s-maxage=120, stale-while-revalidate=300",
     },
   });
 }
