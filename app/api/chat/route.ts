@@ -22,7 +22,10 @@ const PLATFORM_CONTEXT = `Datos actuales de la plataforma:
 - Modelos de pronóstico: Prophet, ARIMAX, XGBoost, Holt-Winters (ensamblados)
 - Validación: 10,000 simulaciones Monte Carlo
 - Horizonte base: 21 días hábiles (~1 mes), configurable
-- Regiones macro: Estados Unidos, China, Unión Europea, Rusia, Colombia, América Latina`;
+- Regiones macro: Estados Unidos, China, Unión Europea, Rusia, Colombia, América Latina
+- Commodities (página Macro): petróleo WTI y Brent, gas natural, acero laminado en caliente, mineral de hierro, carbón térmico (referencia mensual) y acciones de acero y carbón
+- PIB (página Macro): Colombia frente a EE.UU., China, Unión Europea, Japón, Alemania, India, Reino Unido y Rusia, con datos del Banco Mundial
+- Siderurgia (página Siderurgia): oferta nacional e importaciones en Colombia de acero, carbón y coque, mineral de hierro, chatarra, caliza, ferroaleaciones, combustibles, gas natural y oxígeno; comercio exterior por partida arancelaria (UN Comtrade) y análisis del mercado global y nacional para una siderúrgica`;
 
 const SYSTEM_PROMPT = `Eres el Orquestador de Macro Markets, una plataforma de análisis financiero que cubre:
 - Pronósticos de portafolios (Min Volatilidad, Volatilidad Media, Máximo Riesgo) con modelos ensamblados Prophet, ARIMAX, XGBoost y Holt-Winters validados con 10,000 simulaciones Monte Carlo

@@ -1632,3 +1632,601 @@ footer {
     max-width: 92%;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Commodities, PIB y Siderurgia
+   ═══════════════════════════════════════════════════════════════════════ */
+.cm-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.cm-group {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin: 0 0 12px;
+}
+
+.cm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.cm-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cm-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cm-name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.cm-sym,
+.sd-code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10.5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.cm-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.cm-price,
+.cm-stat-val,
+.cm-chg-val,
+.sd-fact-val,
+.sd-fig-val,
+.sd-table .num,
+.sd-origin-val {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.cm-price {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.cm-unit {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cm-spark {
+  margin: 0 -2px;
+}
+
+.cm-chgs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  border-top: 1px solid var(--hairline);
+  padding-top: 10px;
+}
+
+.cm-chg,
+.cm-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cm-chg-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cm-chg-val {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.cm-chg-val.up {
+  color: var(--green);
+}
+
+.cm-chg-val.down {
+  color: var(--red);
+}
+
+.cm-foot {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.cm-bench {
+  padding: 20px;
+}
+
+.cm-bench-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.cm-bench-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.cm-bench-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 4px 0 8px;
+}
+
+.cm-bench-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.cm-stat-val {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* ── PIB ─────────────────────────────────────────────────── */
+.gdp-table-card {
+  overflow-x: auto;
+  padding: 6px 8px;
+}
+
+.gdp-charts,
+.sd-trade,
+.sd-analysis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.gdp-charts .card,
+.sd-trade .card,
+.sd-analysis .card {
+  padding: 20px;
+}
+
+.gdp-flag {
+  margin-right: 6px;
+}
+
+.gdp-tag {
+  margin-left: 8px;
+  font-size: 10px;
+  color: var(--muted);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 1px 7px;
+  white-space: nowrap;
+}
+
+.gdp-base td {
+  background: rgba(255, 255, 255, 0.04);
+  font-weight: 600;
+}
+
+.gdp-key {
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* ── Tablas ──────────────────────────────────────────────── */
+.sd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.sd-table th {
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hairline-strong);
+  white-space: nowrap;
+}
+
+.sd-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--text-dim);
+  vertical-align: top;
+  line-height: 1.45;
+}
+
+.sd-table tr:last-child td {
+  border-bottom: none;
+}
+
+.sd-table td:first-child {
+  color: var(--text);
+}
+
+.sd-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sd-table .num.up {
+  color: var(--green);
+}
+
+.sd-table .num.down {
+  color: var(--red);
+}
+
+.sd-mini {
+  font-size: 12.5px;
+}
+
+.sd-mini th,
+.sd-mini td {
+  padding: 7px 8px;
+}
+
+.sd-wgt {
+  display: block;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+/* ── Siderurgia ──────────────────────────────────────────── */
+.sd-gap {
+  height: 26px;
+}
+
+.sd-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+}
+
+.sd-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sd-fact-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sd-fact-val {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.sd-fact-period {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.sd-src {
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-decoration-color: var(--hairline-strong);
+  text-underline-offset: 2px;
+}
+
+.sd-src:hover {
+  color: var(--accent);
+}
+
+.sd-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sd-input {
+  padding: 22px;
+}
+
+.sd-input-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sd-input-group {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.sd-input-name,
+.sd-h3 {
+  margin: 4px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sd-h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+
+.sd-dep {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.sd-dep-label {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.sd-dep-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sd-dep-val::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 7px;
+  background: var(--muted);
+}
+
+.sd-dep-alta {
+  border-color: rgba(251, 111, 124, 0.4);
+}
+
+.sd-dep-alta .sd-dep-val::before {
+  background: var(--red);
+}
+
+.sd-dep-media {
+  border-color: rgba(245, 196, 81, 0.4);
+}
+
+.sd-dep-media .sd-dep-val::before {
+  background: var(--yellow);
+}
+
+.sd-dep-baja .sd-dep-val::before,
+.sd-dep-nula .sd-dep-val::before {
+  background: var(--green);
+}
+
+.sd-input-note {
+  margin: 12px 0 16px;
+  font-size: 13.5px;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.sd-input-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 28px;
+  border-top: 1px solid var(--hairline);
+  padding-top: 16px;
+}
+
+.sd-sub {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.sd-text {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text-dim);
+  margin: 0 0 12px;
+  max-width: 72ch;
+}
+
+.sd-text:last-child {
+  margin-bottom: 0;
+}
+
+.sd-figs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sd-figs li {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 10px;
+  background: var(--panel-2);
+  border-radius: var(--r-sm);
+}
+
+.sd-fig-val {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sd-fig-label {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.sd-meta {
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 14px;
+  font-size: 12.5px;
+}
+
+.sd-meta dt {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.sd-meta dd {
+  margin: 0;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.sd-origins {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.sd-origins li {
+  display: grid;
+  grid-template-columns: 120px 1fr 150px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.sd-origin-name {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sd-origin-bar {
+  height: 10px;
+  border-radius: 0 4px 4px 0;
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.sd-origin-bar > span {
+  display: block;
+  height: 100%;
+  background: #338ced;
+  border-radius: 0 4px 4px 0;
+}
+
+.sd-origin-val {
+  text-align: right;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.sd-origin-val em {
+  font-style: normal;
+  color: var(--muted);
+  margin-left: 6px;
+  font-size: 11px;
+}
+
+.sd-details {
+  margin-top: 16px;
+}
+
+.sd-details summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.sd-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sd-foot {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 100ch;
+}
+
+.sd-sources {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .gdp-charts,
+  .sd-trade,
+  .sd-analysis,
+  .sd-input-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sd-origins li {
+    grid-template-columns: 96px 1fr 120px;
+  }
+  .cm-bench-stats {
+    gap: 16px;
+  }
+}

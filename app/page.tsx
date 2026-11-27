@@ -30,6 +30,13 @@ export default function Home() {
             <div className="qnav-sub">EE.UU. · China · EU · LatAm</div>
           </div>
         </Link>
+        <Link href="/siderurgia" className="qnav-card">
+          <span className="qnav-icon">🏭</span>
+          <div>
+            <div className="qnav-title">Siderurgia</div>
+            <div className="qnav-sub">Acero · Carbón · Gas · Insumos</div>
+          </div>
+        </Link>
         <Link href="/news" className="qnav-card">
           <span className="qnav-icon">📰</span>
           <div>

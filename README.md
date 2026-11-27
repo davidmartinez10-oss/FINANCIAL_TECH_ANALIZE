@@ -23,6 +23,8 @@ decisiones de inversión, con **pronósticos ensamblados** validados por
 │  ─ /api/quote     → Yahoo Finance v8/chart (tiempo real, sin key)    │
 │  ─ /api/forecast  → sirve los resultados del ensamble + Monte Carlo  │
 │  ─ /              → dashboard: cotizaciones live + 3 portafolios      │
+│  ─ /macro         → regiones + commodities + PIB Colombia vs potencias│
+│  ─ /siderurgia    → oferta nacional, importaciones y análisis sectorial│
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -84,12 +86,65 @@ generador sintético (GBM correlacionado) para que el pipeline corra igual.
 |--------|----------------------------------------|-------------|
 | GET    | `/api/quote?symbols=NVDA,MSFT&range=1d&interval=5m` | Cotizaciones en vivo (máx. 20 símbolos) |
 | GET    | `/api/forecast`                        | Ensamble + Monte Carlo de las 3 carteras |
+| GET    | `/api/commodities`                     | Petróleo, gas, acero HRC, mineral de hierro y acciones del sector (diario) + carbón, mineral, Brent, gas Europa e IPP del acero (mensual) |
+| GET    | `/api/gdp`                             | PIB de Colombia frente a EE.UU., China, UE, Japón, Alemania, India, Reino Unido, Rusia, Brasil y México |
+| GET    | `/api/steel`                           | Comercio exterior de Colombia por partida arancelaria + mercado siderúrgico curado |
+
+---
+
+## Módulo Macro: commodities y PIB
+
+| Bloque | Fuente | Frecuencia | Key |
+|--------|--------|------------|-----|
+| Petróleo WTI/Brent, gas Henry Hub, acero HRC, mineral de hierro 62 % | Yahoo Finance (respaldo FMP donde existe símbolo) | Diaria | No |
+| Carbón térmico, mineral de hierro, Brent, gas Europa, IPP hierro y acero | FRED (series del FMI y del BLS) | Mensual | No |
+| PIB corriente, crecimiento real y per cápita | Banco Mundial (WDI) | Anual | No |
+
+El carbón no tiene un futuro líquido de acceso público (el símbolo `MTF=F` de
+Yahoo dejó de actualizarse en 2025), por eso se muestra la referencia mensual
+del FMI y, como señal diaria, acciones de carbón térmico (BTU) y metalúrgico (HCC).
+
+`fetchDailyQuote` (en `lib/providers/yahoo.ts`) compara la antigüedad del precio
+de mercado con la de la serie de cierres: en futuros poco líquidos como `TIO=F`
+Yahoo deja en `meta` un precio de hace años, y se usa el último cierre.
+
+## Módulo Siderurgia (micro)
+
+`/siderurgia` responde tres preguntas para una empresa siderúrgica en Colombia:
+
+1. **¿Qué se produce en el país y qué se importa?** Matriz por insumo: acero,
+   carbón térmico, carbón metalúrgico y coque, mineral de hierro, chatarra,
+   caliza y cal, ferroaleaciones y electrodos, combustibles, gas natural y
+   oxígeno. Cada uno con su oferta nacional, su comercio exterior y su nivel
+   de dependencia de importaciones.
+2. **¿Cómo se mueve el comercio exterior?** Importaciones (USD CIF) y
+   exportaciones (USD FOB) de los últimos cinco años para 17 partidas del
+   Sistema Armonizado, y origen del acero importado.
+3. **¿Qué significa para la operación?** Lectura del mercado global y
+   nacional, oportunidades, riesgos, exposición por ruta (integrada vs. horno
+   eléctrico) e indicadores a vigilar.
+
+Dos capas de datos:
+
+- **En vivo:** UN Comtrade (endpoint público, sin key). Admite un período por
+  llamada, así que se consulta año por año con pausa y se cachea. Si no
+  responde, se sirve la instantánea `tradeSnapshot` de
+  `data/steel_market.json` y la página lo indica.
+- **Curada:** `data/steel_market.json` contiene las cifras de oferta nacional
+  y el análisis, cada una con período y fuente. No hay API pública para
+  producción nacional de acero, coque o gases industriales: **este archivo se
+  actualiza a mano** cuando Camacero, ANDI, Fenalcarbón, DANE o la UPME
+  publican cifras nuevas. El campo `asOf` es la fecha de corte que ve el usuario.
 
 ---
 
 ## Roadmap
 
-- [ ] Módulo macro en la web (yield curve, CPI, Fed) vía FRED.
+- [x] Commodities y PIB en el módulo macro (Yahoo, FRED, Banco Mundial).
+- [x] Módulo de siderurgia: oferta nacional, importaciones y análisis.
+- [ ] Yield curve, CPI y Fed vía FRED.
+- [ ] Paridad de importación del acero (precio internacional + flete + arancel, en COP).
+- [ ] Automatizar la actualización de `data/steel_market.json`.
 - [ ] Cache Redis / KV en Vercel para cotizaciones.
 - [ ] WebSocket para streaming real-time (proveedor de pago).
 - [ ] Persistir resultados de Colab vía Vercel KV en lugar de JSON estático.
