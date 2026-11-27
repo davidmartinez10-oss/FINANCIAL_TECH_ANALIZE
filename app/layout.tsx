@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import Nav from "@/components/Nav";
 import TickerBar from "@/components/TickerBar";
 import "./globals.css";
 
-const sans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
+// Fuentes servidas desde el propio proyecto (paquetes @fontsource-variable).
+// Antes se descargaban de Google Fonts durante el build con `next/font/google`,
+// y el build fallaba cada vez que Google respondía con un formato de URL
+// distinto ("Cannot read properties of null" en el cargador de fuentes).
+const sans = localFont({
+  src: "../node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2",
   display: "swap",
   variable: "--font-sans",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: "200 800",
 });
 
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
+const mono = localFont({
+  src: "../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2",
   display: "swap",
   variable: "--font-mono",
-  weight: ["400", "500", "600", "700"],
+  weight: "100 800",
 });
 
 export const metadata: Metadata = {

@@ -76,6 +76,9 @@ generador sintético (GBM correlacionado) para que el pipeline corra igual.
 
 1. Conecta el repo de GitHub en Vercel (framework detectado: Next.js).
 2. Sin variables de entorno obligatorias (Yahoo no requiere key).
+   El build no descarga nada de internet: las fuentes (Plus Jakarta Sans y
+   JetBrains Mono, licencia OFL) vienen de los paquetes `@fontsource-variable`
+   y se cargan con `next/font/local`.
 3. Deploy. Las rutas API corren en el runtime de Node.
 
 ---
