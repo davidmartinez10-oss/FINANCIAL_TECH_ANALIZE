@@ -58,9 +58,32 @@ function emptyRows(): Map<string, TradeRow> {
   return new Map(
     HS.map((h) => [
       h.code,
-      { ...h, importsUsd: {}, exportsUsd: {}, importsKg: null, exportsKg: null },
+      {
+        ...h,
+        importsUsd: {},
+        exportsUsd: {},
+        importsKg: null,
+        exportsKg: null,
+        importsUsdPerTon: null,
+        exportsUsdPerTon: null,
+      },
     ])
   );
+}
+
+// Valor unitario (USD/t) del último año. Solo con al menos 100 t: por debajo,
+// unas pocas operaciones de producto especial distorsionan el promedio.
+const MIN_KG = 100_000;
+function unitValue(usd: number | null | undefined, kg: number | null) {
+  return usd != null && kg != null && kg >= MIN_KG ? usd / (kg / 1000) : null;
+}
+
+function addUnitValues(rows: Iterable<TradeRow>, year: number) {
+  const y = String(year);
+  for (const r of rows) {
+    r.importsUsdPerTon = unitValue(r.importsUsd[y], r.importsKg);
+    r.exportsUsdPerTon = unitValue(r.exportsUsd[y], r.exportsKg);
+  }
 }
 
 function fromSnapshot(snap: Snapshot, errors: string[]): SteelTrade {
@@ -74,6 +97,7 @@ function fromSnapshot(snap: Snapshot, errors: string[]): SteelTrade {
     row.importsKg = m?.kg ?? null;
     row.exportsKg = x?.kg ?? null;
   }
+  addUnitValues(rows.values(), snap.year);
   return {
     source: `UN Comtrade · instantánea del ${snap.retrieved}`,
     live: false,
@@ -138,6 +162,8 @@ async function loadTrade(snap: Snapshot): Promise<SteelTrade> {
       }
     }
   }
+
+  addUnitValues(rows.values(), latestYear);
 
   // Orígenes de las importaciones de acero (cap. 72), último año.
   let steelOrigins: TradeOrigin[] = [];

@@ -92,29 +92,49 @@ const MACRO_REGIONS: RegionDef[] = [
   },
 ];
 
+// Unidad en la que cotiza cada símbolo, para que el valor nunca quede sin rótulo.
+const FX_UNIT: Record<string, string> = {
+  "COP=X": "COP por USD",
+  "CNY=X": "CNY por USD",
+  "RUB=X": "RUB por USD",
+  "BRL=X": "BRL por USD",
+  "MXN=X": "MXN por USD",
+  "EURUSD=X": "USD por EUR",
+};
+function unitOf(symbol: string): string {
+  if (FX_UNIT[symbol]) return FX_UNIT[symbol];
+  if (symbol === "^TNX") return "% anual";
+  if (symbol === "DX-Y.NYB") return "índice";
+  if (symbol.startsWith("^")) return "puntos";
+  if (symbol === "GC=F") return "USD/onza troy";
+  if (symbol === "CL=F") return "USD/barril";
+  if (symbol === "NG=F") return "USD/MMBtu";
+  return "USD por acción";
+}
+
 export async function GET() {
-  const useFmp = fmpEnabled();
   const errorMessages: string[] = [];
 
-  // priceFor(asset) → { price, changePct } | null
-  let lookup: (a: MacroAsset) => { price: number; changePct: number } | null;
+  // Yahoo primero (responde desde Vercel); FMP solo para lo que falte.
+  const allSymbols = MACRO_REGIONS.flatMap((r) => r.assets.map((a) => a.symbol));
+  const { quotes, errors } = await fetchQuotes(allSymbols, "1d", "1d");
+  const qmap = new Map(quotes.map((q) => [q.symbol, { price: q.price, changePct: q.changePct }]));
 
-  if (useFmp) {
-    const fmpSymbols = MACRO_REGIONS.flatMap((r) =>
-      r.assets.map((a) => a.fmp).filter((x): x is string => !!x)
+  if (errors.length > 0 && fmpEnabled()) {
+    const missing = MACRO_REGIONS.flatMap((r) => r.assets).filter(
+      (a) => a.fmp && !qmap.has(a.symbol)
     );
-    const map = await fmpBatchQuote(fmpSymbols);
-    lookup = (a) => (a.fmp ? map.get(a.fmp) ?? null : null);
-  } else {
-    const allSymbols = MACRO_REGIONS.flatMap((r) => r.assets.map((a) => a.symbol));
-    const { quotes, errors } = await fetchQuotes(allSymbols, "1d", "1d");
-    errors.forEach((e) => errorMessages.push(`${e.symbol}: ${e.message}`));
-    const qmap = new Map(quotes.map((q) => [q.symbol, q]));
-    lookup = (a) => {
-      const q = qmap.get(a.symbol);
-      return q ? { price: q.price, changePct: q.changePct } : null;
-    };
+    const map = await fmpBatchQuote(missing.map((a) => a.fmp!));
+    for (const a of missing) {
+      const v = map.get(a.fmp!);
+      if (v && v.price > 0) qmap.set(a.symbol, v);
+    }
   }
+  errors
+    .filter((e) => !qmap.has(e.symbol))
+    .forEach((e) => errorMessages.push(`${e.symbol}: ${e.message}`));
+
+  const lookup = (a: MacroAsset) => qmap.get(a.symbol) ?? null;
 
   const regions: MacroRegion[] = MACRO_REGIONS.map((regionDef) => {
     const indicators: MacroIndicator[] = regionDef.assets
@@ -127,6 +147,7 @@ export async function GET() {
           price: v.price,
           changePct: v.changePct,
           category: a.category,
+          unit: unitOf(a.symbol),
         } satisfies MacroIndicator;
       })
       .filter((i): i is MacroIndicator => i !== null);

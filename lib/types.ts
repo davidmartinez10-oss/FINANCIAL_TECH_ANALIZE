@@ -70,6 +70,9 @@ export interface ForecastResults {
     horizon_days: number;
     n_sims: number;
     rows: number;
+    source?: string;
+    last_close?: string; // YYYY-MM-DD del último cierre usado
+    errors?: string[];
   };
   portfolios: Record<string, PortfolioForecast>;
 }
@@ -198,6 +201,7 @@ export interface MacroIndicator {
   price: number;
   changePct: number;
   category: string;
+  unit: string; // p. ej. "puntos", "USD", "COP por USD"
 }
 
 export interface MacroRegion {
@@ -228,6 +232,7 @@ export interface NewsArticle {
 export interface NewsResponse {
   articles: NewsArticle[];
   query: string;
+  source?: string;
   asOf: string;
 }
 
@@ -248,13 +253,25 @@ export interface CommodityQuote {
   group: string; // "Energía y acero" | "Empresas del sector"
   unit: string;
   price: number;
-  changePct: number; // variación diaria
+  change: number; // variación absoluta del día
+  changePct: number; // variación diaria (o mensual si frequency = "M")
   change1mPct: number | null;
   change3mPct: number | null;
   asOf: number; // epoch seconds del último dato
   stale: boolean; // true si el último precio no es de la sesión actual
-  source: string; // "Yahoo" | "FMP"
+  source: string; // "Yahoo" | "FMP" | "FRED"
   series: SeriesPoint[]; // cierres diarios (~3 meses)
+  hi52: number | null; // rango de 52 semanas
+  lo52: number | null;
+  frequency: "D" | "M";
+  dateOnly?: boolean; // el dato rige por día (TRM): mostrar fecha, no hora // diaria, o referencia mensual
+}
+
+export interface KeyIndicatorsResponse {
+  asOf: string;
+  groups: string[];
+  rows: CommodityQuote[];
+  errors: string[];
 }
 
 export interface BenchmarkPoint {
@@ -315,6 +332,8 @@ export interface TradeRow {
   exportsUsd: Record<string, number | null>; // año → USD FOB
   importsKg: number | null; // último año
   exportsKg: number | null; // último año
+  importsUsdPerTon: number | null; // valor unitario del último año (si hay peso)
+  exportsUsdPerTon: number | null;
 }
 
 export interface TradeOrigin {
@@ -362,8 +381,38 @@ export interface SteelSource {
   url: string;
 }
 
+export interface SteelFobSeries {
+  id: string;
+  name: string;
+  values: (number | null)[]; // una por mes de `months`
+  roundedUntil?: string; // YYYY-MM: hasta ese mes la fuente solo publica enteros
+}
+
+export interface SteelBasePrice {
+  group: string;
+  product: string;
+  cop: number; // COP por tonelada
+  prevCop: number | null; // período anterior
+  period: string;
+  sourceId: string;
+}
+
+export interface SteelPrices {
+  fob: {
+    unit: string;
+    sourceId: string;
+    note: string;
+    months: string[]; // YYYY-MM
+    series: SteelFobSeries[];
+  };
+  trm: number; // COP por USD usada por la UPME
+  base: SteelBasePrice[];
+  baseNote: string;
+}
+
 export interface SteelMarket {
   asOf: string;
+  prices: SteelPrices;
   kpis: SteelFigure[];
   globalFacts: SteelFigure[];
   nationalFacts: SteelFigure[];

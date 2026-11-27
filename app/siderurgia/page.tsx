@@ -6,6 +6,8 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -15,11 +17,12 @@ import CommodityPanel from "@/components/CommodityPanel";
 import type {
   SteelFigure,
   SteelInput,
+  SteelPrices,
   SteelResponse,
   SteelSource,
   TradeRow,
 } from "@/lib/types";
-import { fmtNum, fmtUsd, fmtWeight } from "@/lib/format";
+import { fmtMonth, fmtNum, fmtPct, fmtUsd, fmtWeight } from "@/lib/format";
 import { AXIS_TICK, INK, SERIES, TOOLTIP_STYLE } from "@/lib/chart-theme";
 
 const DEP_LABEL: Record<SteelInput["dependence"], string> = {
@@ -142,6 +145,232 @@ function InputCard({
   );
 }
 
+// Color fijo por producto: el mismo en la gráfica y en la tabla.
+const FOB_COLOR: Record<string, string> = {
+  coque: SERIES.blue,
+  metalurgico: SERIES.orange,
+  termico: SERIES.aqua,
+};
+
+// Partidas con valor unitario útil para una siderúrgica (insumos a granel).
+const UNIT_CODES = ["2704", "2701", "2601", "7204", "7202", "2521", "2522"];
+
+function Change({ pct }: { pct: number | null }) {
+  if (pct == null) return <span className="sd-flat">—</span>;
+  return (
+    <span className={pct >= 0 ? "up" : "down"}>
+      {pct >= 0 ? "▲" : "▼"} {fmtPct(pct, 1)}
+    </span>
+  );
+}
+
+function PricePanel({
+  prices,
+  rows,
+  year,
+  sources,
+}: {
+  prices: SteelPrices;
+  rows: Map<string, TradeRow>;
+  year: number | null;
+  sources: Map<string, SteelSource>;
+}) {
+  const { fob, base, trm } = prices;
+  const chart = fob.months.map((m, i) => {
+    const point: Record<string, string | number | null> = { month: fmtMonth(m) };
+    for (const s of fob.series) point[s.name] = s.values[i];
+    return point;
+  });
+  // Eje en múltiplos de 50 que cubre todas las series.
+  const all = fob.series.flatMap((s) => s.values.filter((v): v is number => v != null));
+  const lo = Math.floor(Math.min(...all) / 50) * 50;
+  const hi = Math.ceil(Math.max(...all) / 50) * 50;
+  const ticks = Array.from({ length: (hi - lo) / 50 + 1 }, (_, i) => lo + i * 50);
+  const groups = [...new Set(base.map((b) => b.group))];
+  const unitRows = UNIT_CODES.map((c) => rows.get(c)).filter(
+    (r): r is TradeRow => !!r && (r.importsUsdPerTon != null || r.exportsUsdPerTon != null)
+  );
+
+  return (
+    <>
+      <div className="sd-trade">
+        <div className="card">
+          <div className="cm-bench-title">Coque y carbón colombianos · precio FOB</div>
+          <div className="cm-bench-sub">
+            {fob.unit} · promedio mensual · <SourceLink id={fob.sourceId} sources={sources} />
+          </div>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={chart} margin={{ top: 12, right: 12, bottom: 0, left: 0 }}>
+              <CartesianGrid stroke={INK.grid} vertical={false} />
+              <XAxis dataKey="month" tick={AXIS_TICK} tickLine={false} axisLine={{ stroke: INK.axis }} />
+              <YAxis
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                width={44}
+                domain={[lo, hi]}
+                ticks={ticks}
+              />
+              <Tooltip
+                contentStyle={TOOLTIP_STYLE}
+                cursor={{ stroke: INK.axis }}
+                formatter={(v, k) => [`US$${fmtNum(Number(v), 2)}/t`, String(k)]}
+              />
+              <Legend
+                wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
+                formatter={(k) => <span style={{ color: INK.secondary }}>{String(k)}</span>}
+              />
+              {fob.series.map((s) => (
+                <Line
+                  key={s.id}
+                  dataKey={s.name}
+                  stroke={FOB_COLOR[s.id] ?? SERIES.violet}
+                  strokeWidth={2}
+                  dot={{ r: 3, strokeWidth: 0, fill: FOB_COLOR[s.id] ?? SERIES.violet }}
+                  activeDot={{ r: 5 }}
+                  connectNulls={false}
+                  isAnimationActive={false}
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+          <div style={{ overflowX: "auto" }}>
+            <table className="sd-table sd-table-tight">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  {fob.months.map((m) => (
+                    <th key={m} className="num">
+                      {fmtMonth(m).slice(0, 3)}
+                    </th>
+                  ))}
+                  <th className="num">Var. mes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fob.series.map((s) => {
+                  const pts = s.values.filter((v): v is number => v != null);
+                  const last = pts[pts.length - 1];
+                  const prev = pts[pts.length - 2];
+                  return (
+                    <tr key={s.id}>
+                      <td>
+                        <span className="sd-swatch" style={{ background: FOB_COLOR[s.id] }} />
+                        {s.name}
+                      </td>
+                      {s.values.map((v, i) => (
+                        <td key={fob.months[i]} className="num">
+                          {v == null
+                            ? "—"
+                            : fmtNum(v, s.roundedUntil && fob.months[i] <= s.roundedUntil ? 0 : 2)}
+                        </td>
+                      ))}
+                      <td className="num">
+                        <Change pct={prev ? ((last - prev) / prev) * 100 : null} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="sd-foot">{fob.note}</div>
+        </div>
+
+        <div className="card">
+          <div className="cm-bench-title">Valor unitario del comercio exterior</div>
+          <div className="cm-bench-sub">
+            USD por tonelada · {year ?? "—"} · valor declarado dividido por el peso (Comtrade)
+          </div>
+          {unitRows.length === 0 ? (
+            <div className="sd-text" style={{ marginTop: 16 }}>
+              La fuente no informó el peso de estas partidas para el último año.
+            </div>
+          ) : (
+            <table className="sd-table sd-table-tight">
+              <thead>
+                <tr>
+                  <th>Partida</th>
+                  <th className="num">Importación · USD/t CIF</th>
+                  <th className="num">Exportación · USD/t FOB</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unitRows.map((r) => (
+                  <tr key={r.code}>
+                    <td>
+                      {r.label} <span className="sd-code">{r.code}</span>
+                    </td>
+                    <td className="num">
+                      {r.importsUsdPerTon == null ? "—" : `US$${fmtNum(r.importsUsdPerTon, 0)}`}
+                      {r.importsUsdPerTon != null && <em className="sd-vol">{fmtWeight(r.importsKg)}</em>}
+                    </td>
+                    <td className="num">
+                      {r.exportsUsdPerTon == null ? "—" : `US$${fmtNum(r.exportsUsdPerTon, 0)}`}
+                      {r.exportsUsdPerTon != null && <em className="sd-vol">{fmtWeight(r.exportsKg)}</em>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <div className="sd-foot">
+            Promedio anual de todo lo declarado en la partida, con el volumen debajo. Un valor
+            alto con poco volumen indica producto especial, no el precio del granel. Se omite
+            cuando el peso no viene informado o es menor de 100 t.
+          </div>
+        </div>
+      </div>
+
+      <div className="card sd-base">
+        <div className="cm-bench-title">Precios base de la UPME para regalías</div>
+        <div className="cm-bench-sub">
+          COP por tonelada en boca de mina · equivalente en USD a la TRM de {fmtNum(trm, 2)} que usa
+          la resolución de carbón
+        </div>
+        <div style={{ overflowX: "auto" }}>
+          <table className="sd-table sd-table-tight">
+            <thead>
+              <tr>
+                <th>Mineral</th>
+                <th className="num">COP/t</th>
+                <th className="num">USD/t</th>
+                <th className="num">Var. período</th>
+                <th>Vigencia</th>
+                <th>Fuente</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groups.map((g) => [
+                <tr key={g} className="sd-group-row">
+                  <td colSpan={6}>{g}</td>
+                </tr>,
+                ...base
+                  .filter((b) => b.group === g)
+                  .map((b) => (
+                    <tr key={b.product}>
+                      <td>{b.product}</td>
+                      <td className="num">{fmtNum(b.cop, 0)}</td>
+                      <td className="num">{fmtNum(b.cop / trm, 2)}</td>
+                      <td className="num">
+                        <Change pct={b.prevCop ? ((b.cop - b.prevCop) / b.prevCop) * 100 : null} />
+                      </td>
+                      <td>{b.period}</td>
+                      <td>
+                        <SourceLink id={b.sourceId} sources={sources} />
+                      </td>
+                    </tr>
+                  )),
+              ])}
+            </tbody>
+          </table>
+        </div>
+        <div className="sd-foot">{prices.baseNote}</div>
+      </div>
+    </>
+  );
+}
+
 export default function SiderurgiaPage() {
   const [data, setData] = useState<SteelResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -207,6 +436,12 @@ export default function SiderurgiaPage() {
         </div>
       </header>
 
+      <div className="unit-legend" role="note">
+        <strong>Unidades:</strong> USD = dólares de EE. UU. · COP = pesos colombianos · t =
+        tonelada métrica · kt = mil toneladas · Mt = millón de toneladas · M = millones ·
+        CIF = valor puesto en puerto colombiano · FOB = valor en puerto de origen
+      </div>
+
       <section>
         <h2 className="section-title">Colombia en cuatro cifras</h2>
         <FactGrid facts={market.kpis} sources={sources} />
@@ -217,6 +452,11 @@ export default function SiderurgiaPage() {
         <FactGrid facts={market.globalFacts} sources={sources} />
         <div className="sd-gap" />
         <CommodityPanel />
+      </section>
+
+      <section>
+        <h2 className="section-title">Precios del coque, el carbón y los minerales siderúrgicos</h2>
+        <PricePanel prices={market.prices} rows={rows} year={trade.latestYear} sources={sources} />
       </section>
 
       <section>
@@ -276,7 +516,7 @@ export default function SiderurgiaPage() {
                 />
                 <Tooltip
                   contentStyle={TOOLTIP_STYLE}
-                  cursor={{ fill: "rgba(255,255,255,0.04)" }}
+                  cursor={{ fill: INK.cursor }}
                   formatter={(v, k) => [`US$${fmtNum(Number(v), 1)} M`, String(k)]}
                 />
                 <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} formatter={(k) => <span style={{ color: INK.secondary }}>{String(k)}</span>} />
@@ -319,11 +559,11 @@ export default function SiderurgiaPage() {
                 <tr>
                   <th>Partida</th>
                   <th>Grupo</th>
-                  <th className="num">Importaciones (CIF)</th>
-                  <th className="num">Peso</th>
-                  <th className="num">Exportaciones (FOB)</th>
-                  <th className="num">Peso</th>
-                  <th className="num">Balance</th>
+                  <th className="num">Importaciones · USD CIF</th>
+                  <th className="num">Peso · toneladas</th>
+                  <th className="num">Exportaciones · USD FOB</th>
+                  <th className="num">Peso · toneladas</th>
+                  <th className="num">Balance · USD</th>
                 </tr>
               </thead>
               <tbody>

@@ -23,12 +23,18 @@ export async function GET(request: Request) {
     );
   }
 
-  // 1) Histórico diario: FMP (si hay key) → fallback Yahoo.
+  // 1) Histórico diario: Yahoo (responde desde Vercel) → respaldo FMP.
   let history: { t: number; c: number }[] = [];
   let source = "";
   const errors: string[] = [];
 
-  if (fmpEnabled()) {
+  try {
+    history = await yahooDailyCloses(symbol, "1y", "1d");
+    source = "Yahoo";
+  } catch (e) {
+    errors.push(`Yahoo: ${(e as Error).message}`);
+  }
+  if (history.length < 40 && fmpEnabled()) {
     try {
       history = await fmpDailyCloses(symbol, 260);
       source = "FMP";
@@ -36,23 +42,11 @@ export async function GET(request: Request) {
       errors.push(`FMP: ${(e as Error).message}`);
     }
   }
-  if (history.length < 40) {
-    try {
-      history = await yahooDailyCloses(symbol, "1y", "1d");
-      source = "Yahoo";
-    } catch (e) {
-      errors.push(`Yahoo: ${(e as Error).message}`);
-    }
-  }
 
   if (history.length < 40) {
     return Response.json(
       {
-        error:
-          "No se pudo obtener suficiente histórico para calcular el pronóstico. " +
-          (fmpEnabled()
-            ? "Verifica que FMP_API_KEY sea válida."
-            : "Configura FMP_API_KEY en Vercel (Yahoo bloquea IPs de servidor)."),
+        error: "No se pudo obtener suficiente histórico para calcular el pronóstico.",
         detail: errors.join(" · "),
       },
       { status: 502 }

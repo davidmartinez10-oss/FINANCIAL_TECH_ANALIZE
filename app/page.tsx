@@ -1,6 +1,8 @@
 import Link from "next/link";
 import QuoteGrid from "@/components/QuoteGrid";
 import ForecastPanel from "@/components/ForecastPanel";
+import KeyIndicators from "@/components/KeyIndicators";
+import GdpPanel from "@/components/GdpPanel";
 
 export default function Home() {
   return (
@@ -9,10 +11,15 @@ export default function Home() {
         <div>
           <h1>Dashboard · Macro Markets</h1>
           <div className="sub">
-            Mercado en tiempo real · Pronósticos ensamblados · Monte Carlo 10.000 sims
+            Indicadores clave · Mercado en tiempo real · Pronósticos ensamblados
           </div>
         </div>
       </header>
+
+      <section>
+        <h2 className="section-title">Indicadores clave</h2>
+        <KeyIndicators />
+      </section>
 
       {/* Quick nav cards */}
       <div className="quick-nav">
@@ -26,8 +33,8 @@ export default function Home() {
         <Link href="/macro" className="qnav-card">
           <span className="qnav-icon">🌍</span>
           <div>
-            <div className="qnav-title">Macro Global</div>
-            <div className="qnav-sub">EE.UU. · China · EU · LatAm</div>
+            <div className="qnav-title">Macro y PIB</div>
+            <div className="qnav-sub">Potencias · regiones · commodities</div>
           </div>
         </Link>
         <Link href="/siderurgia" className="qnav-card">
@@ -41,7 +48,7 @@ export default function Home() {
           <span className="qnav-icon">📰</span>
           <div>
             <div className="qnav-title">Noticias</div>
-            <div className="qnav-sub">Tech · IA · Energía · Economía</div>
+            <div className="qnav-sub">Tech · IA · Energía · Acero · LatAm</div>
           </div>
         </Link>
         <Link href="/assistant" className="qnav-card">
@@ -54,6 +61,11 @@ export default function Home() {
       </div>
 
       <section>
+        <h2 className="section-title">PIB · Colombia frente a las potencias</h2>
+        <GdpPanel />
+      </section>
+
+      <section>
         <h2 className="section-title">Mercado en tiempo real</h2>
         <QuoteGrid />
       </section>
@@ -61,10 +73,10 @@ export default function Home() {
       <ForecastPanel />
 
       <footer>
-        Fuente: Yahoo Finance (público, sin API key). Pronósticos: ensamble Prophet +
-        ARIMAX + XGBoost + Holt-Winters validado con 10.000 simulaciones Monte Carlo
-        (research/ensemble_forecast.py). · Solo con fines educativos; no constituye
-        asesoría de inversión.
+        Fuentes: Yahoo Finance, Banco Mundial, FRED, UN Comtrade, UPME-ANM y datos.gov.co
+        (TRM). Pronósticos: ensamble Prophet + ARIMAX + XGBoost + Holt-Winters con 10.000
+        simulaciones Monte Carlo, recalculado con los cierres del día. · Solo con fines
+        educativos; no constituye asesoría de inversión.
       </footer>
     </main>
   );

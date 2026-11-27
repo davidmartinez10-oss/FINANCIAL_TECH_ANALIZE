@@ -53,8 +53,10 @@
       "dependenceNote": "Exportador neto; las importaciones son marginales.",
       "national": "La producción total de carbón (térmico, metalúrgico y coque) cayó en 2025 a su nivel más bajo en 22 años. El precio interno sigue la paridad de exportación.",
       "figures": [
+        { "label": "Precio FOB del carbón térmico colombiano", "value": "US$126,76/t (+11,3 %)", "period": "octubre de 2026", "sourceId": "upme-boletin-34" },
         { "label": "Producción total de carbón", "value": "53,9 Mt (−9 Mt)", "period": "2025", "sourceId": "fenalcarbon-25" },
-        { "label": "Extracción de carbón mineral", "value": "55 Mt (63 Mt en 2024)", "period": "2025 preliminar", "sourceId": "dane-cae" }
+        { "label": "Extracción de carbón mineral", "value": "55 Mt (63 Mt en 2024)", "period": "2025 preliminar", "sourceId": "dane-cae" },
+        { "label": "Producción de carbón según UPME-ANM", "value": "56,2 Mt (62,0 Mt en 2024)", "period": "2025 preliminar", "sourceId": "upme-boletin-34" }
       ],
       "routes": "Generación térmica y calor de proceso",
       "priceRef": "Carbón Australia (PCOALAUUSDM) · Peabody (BTU)"
@@ -68,11 +70,15 @@
       "dependenceNote": "Exportador neto; el riesgo es de precio (paridad de exportación), no de disponibilidad.",
       "national": "Oferta local en Boyacá, Cundinamarca y Norte de Santander. Colombia exporta más coque del que consume su siderurgia, de modo que el productor local compite con el comprador internacional por el mismo mineral.",
       "figures": [
-        { "label": "Exportaciones de coque", "value": "3,7 Mt · US$806 M", "period": "2025", "sourceId": "fenalcarbon-25" },
-        { "label": "Exportaciones de carbón metalúrgico", "value": "1,7 Mt · US$235 M", "period": "2025", "sourceId": "fenalcarbon-25" }
+        { "label": "Precio FOB del coque colombiano", "value": "US$243,17/t (+24,3 %)", "period": "septiembre de 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Precio FOB del carbón metalúrgico colombiano", "value": "US$196,76/t (−3,8 %)", "period": "octubre de 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Exportaciones de coque", "value": "2,96 Mt · US$580 M (−15,2 % en valor)", "period": "ene–sep 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Exportaciones de carbón metalúrgico", "value": "1,44 Mt · US$218 M (+14,4 % en valor)", "period": "ene–sep 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Destinos del coque", "value": "Brasil 50,9 % · Turquía 13,0 % · Reino Unido 5,9 %", "period": "ene–sep 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Exportaciones de coque", "value": "3,7 Mt · US$806 M", "period": "2025", "sourceId": "fenalcarbon-25" }
       ],
       "routes": "Ruta integrada (coquería y alto horno)",
-      "priceRef": "Warrior Met Coal (HCC) como proxy · valor unitario de exportación del coque"
+      "priceRef": "Coque y carbón metalúrgico FOB Colombia (boletín UPME-ANM) · precio base UPME"
     },
     {
       "id": "mineral-hierro",
@@ -84,7 +90,8 @@
       "national": "Extracción pequeña y concentrada en Boyacá y Cundinamarca, históricamente asociada a la siderúrgica integrada. No existe un mercado local profundo: el precio internacional actúa como costo de oportunidad, no como precio de compra.",
       "figures": [
         { "label": "Extracción", "value": "718 kt (517 kt en 2024)", "period": "2025 preliminar", "sourceId": "dane-cae" },
-        { "label": "Reservas (stock de cierre)", "value": "9,09 Mt", "period": "2025 preliminar", "sourceId": "dane-cae" }
+        { "label": "Reservas (stock de cierre)", "value": "9,09 Mt", "period": "2025 preliminar", "sourceId": "dane-cae" },
+        { "label": "Precio base para regalías", "value": "COP 63.980,52/t", "period": "III trim. 2026", "sourceId": "upme-res-476" }
       ],
       "routes": "Ruta integrada (alto horno)",
       "priceRef": "Mineral 62 % Fe (TIO=F · PIORECRUSDM)"
@@ -110,8 +117,12 @@
       "hs": ["2521", "2522"],
       "dependence": "nula",
       "dependenceNote": "Mineral local; comercio exterior marginal.",
-      "national": "Abastecimiento regional de canteras propias o cercanas. El costo depende de la calidad del yacimiento (sílice) y del flete, no del mercado internacional. No se compiló una cifra nacional de producción.",
-      "figures": [],
+      "national": "Abastecimiento regional de canteras propias o cercanas. El costo depende de la calidad del yacimiento (sílice) y del flete, no del mercado internacional.",
+      "figures": [
+        { "label": "Producción nacional de caliza", "value": "20,0 Mt (19,6 Mt en 2024)", "period": "2025 preliminar", "sourceId": "upme-boletin-34" },
+        { "label": "Precio base de la caliza para cal o cemento", "value": "COP 10.803,75/t", "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" },
+        { "label": "Precio base de la dolomita", "value": "COP 40.669,68/t", "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" }
+      ],
       "routes": "Ambas rutas (escorificación); mayor consumo en la integrada",
       "priceRef": "Costos locales: diésel, flete y energía de calcinación"
     },
@@ -123,7 +134,10 @@
       "dependence": "alta",
       "dependenceNote": "Las ferroaleaciones de afino y los electrodos de grafito se importan.",
       "national": "Colombia exporta ferroníquel, pero las ferroaleaciones de afino (ferromanganeso, ferrosilicio) y los electrodos de grafito llegan del exterior. Son partidas pequeñas en valor y críticas en operación: exposición directa al dólar y a la logística.",
-      "figures": [],
+      "figures": [
+        { "label": "Exportaciones de ferroníquel", "value": "75,4 kt · US$270 M (−22,1 % en valor)", "period": "ene–sep 2026", "sourceId": "upme-boletin-34" },
+        { "label": "Precio base del mineral de manganeso", "value": "COP 359.560,51/t", "period": "III trim. 2026", "sourceId": "upme-res-476" }
+      ],
       "routes": "Ambas rutas (afino); electrodos solo en horno eléctrico y horno cuchara",
       "priceRef": "USD/COP · valor unitario de importación (Comtrade)"
     },
@@ -247,8 +261,41 @@
     { "id": "worldsteel-prod", "title": "Global crude steel output falls 1.1% in October", "publisher": "Investing.com (worldsteel)", "date": "2026-11-24", "url": "https://www.investing.com/news/commodities-news/global-crude-steel-output-falls-11-in-october-93CH-5047435" },
     { "id": "china-exports", "title": "China cut steel exports by 2.3% y/y in 10 months", "publisher": "GMK Center (aduanas de China)", "date": "2026-11", "url": "https://gmk.center/en/news/china-cut-steel-exports-by-2-3-y-y-in-10-months/" },
     { "id": "comtrade", "title": "UN Comtrade · comercio de Colombia por partida arancelaria", "publisher": "Naciones Unidas", "date": "consulta en vivo", "url": "https://comtradeplus.un.org/" },
-    { "id": "fred", "title": "Precios de commodities del FMI e IPP del BLS", "publisher": "FRED · Federal Reserve Bank of St. Louis", "date": "consulta en vivo", "url": "https://fred.stlouisfed.org/" }
+    { "id": "fred", "title": "Precios de commodities del FMI e IPP del BLS", "publisher": "FRED · Federal Reserve Bank of St. Louis", "date": "consulta en vivo", "url": "https://fred.stlouisfed.org/" },
+    { "id": "upme-boletin-34", "title": "Boletín estadístico Minería en cifras No. 34", "publisher": "UPME · ANM", "date": "2026-10", "url": "https://docs.upme.gov.co/SIMEC/SIMCO/Cifras-Sectoriales/BoletinMinerales/Boletin_34_mineria_en_cifras_octubre_2026.pdf" },
+    { "id": "upme-res-708", "title": "Resolución 708 de 2026: precio base del carbón, cuarto trimestre de 2026", "publisher": "UPME", "date": "2026-09-29", "url": "https://docs.upme.gov.co/Normatividad/708_2026.pdf" },
+    { "id": "upme-res-476", "title": "Resolución 476 de 2026: precios base de mineral de hierro y minerales metálicos, tercer trimestre de 2026 (soporte técnico)", "publisher": "UPME", "date": "2026-06-30", "url": "https://docs.upme.gov.co/Normatividad/Soporte_tecnico_Metalicos_2doTrim2026_Cir476_2026.pdf" },
+    { "id": "upme-res-213", "title": "Resolución 213 de 2026: precios base de minerales no metálicos, anualidad 2026-2027 (anexo técnico)", "publisher": "UPME", "date": "2026-03-31", "url": "https://docs.upme.gov.co/Normatividad/Anexo_tecnico_Res_213_2026_no_metalicos.pdf" }
   ],
+  "prices": {
+    "fob": {
+      "unit": "USD/t",
+      "sourceId": "upme-boletin-34",
+      "note": "Precio promedio mensual FOB Colombia. Carbón térmico y metalúrgico: Baltic Exchange y Argus Media; el metalúrgico de mayo a agosto está redondeado a entero, como en la gráfica del boletín. Coque: estimación de la UPME y la ANM con el valor y la cantidad exportados (DIAN/DANE), con un mes de rezago.",
+      "months": ["2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10"],
+      "series": [
+        { "id": "coque", "name": "Coque", "values": [211.89, 215.0, 228.71, 195.6, 243.17, null] },
+        { "id": "metalurgico", "name": "Carbón metalúrgico", "values": [179, 181, 167, 169, 204.54, 196.76], "roundedUntil": "2026-08" },
+        { "id": "termico", "name": "Carbón térmico", "values": [91.87, 107.02, 100.76, 104.86, 113.85, 126.76] }
+      ]
+    },
+    "trm": 3655.5,
+    "base": [
+      { "group": "Carbón", "product": "Metalúrgico · consumo interno", "cop": 330066.86, "prevCop": 289629.93, "period": "IV trim. 2026", "sourceId": "upme-res-708" },
+      { "group": "Carbón", "product": "Metalúrgico · exportación (Interior)", "cop": 424485.74, "prevCop": 325481.41, "period": "IV trim. 2026", "sourceId": "upme-res-708" },
+      { "group": "Carbón", "product": "Térmico · consumo interno", "cop": 230082.72, "prevCop": 222641.32, "period": "IV trim. 2026", "sourceId": "upme-res-708" },
+      { "group": "Carbón", "product": "Antracita · consumo interno", "cop": 607706.49, "prevCop": 659983.94, "period": "IV trim. 2026", "sourceId": "upme-res-708" },
+      { "group": "Minerales metálicos", "product": "Mineral de hierro", "cop": 63980.52, "prevCop": null, "period": "III trim. 2026", "sourceId": "upme-res-476" },
+      { "group": "Minerales metálicos", "product": "Mineral de manganeso", "cop": 359560.51, "prevCop": 337718.05, "period": "III trim. 2026", "sourceId": "upme-res-476" },
+      { "group": "Minerales metálicos", "product": "Magnesita", "cop": 248646.58, "prevCop": 233541.89, "period": "III trim. 2026", "sourceId": "upme-res-476" },
+      { "group": "Fundentes y refractarios", "product": "Caliza para cal o cemento", "cop": 10803.75, "prevCop": null, "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" },
+      { "group": "Fundentes y refractarios", "product": "Dolomita", "cop": 40669.68, "prevCop": null, "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" },
+      { "group": "Fundentes y refractarios", "product": "Fluorita", "cop": 246378.39, "prevCop": null, "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" },
+      { "group": "Fundentes y refractarios", "product": "Cuarzo", "cop": 25702.76, "prevCop": null, "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" },
+      { "group": "Fundentes y refractarios", "product": "Arcillas refractarias", "cop": 35303.61, "prevCop": null, "period": "abr-2026 a mar-2027", "sourceId": "upme-res-213" }
+    ],
+    "baseNote": "Precios base en boca de mina que fija la UPME para liquidar regalías. No son precios de mercado puestos en planta: sirven como referencia oficial y comparable entre trimestres."
+  },
   "tradeSnapshot": {
     "year": 2025,
     "retrieved": "2026-11-27",

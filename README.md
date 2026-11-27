@@ -76,6 +76,9 @@ generador sintético (GBM correlacionado) para que el pipeline corra igual.
 
 1. Conecta el repo de GitHub en Vercel (framework detectado: Next.js).
 2. Sin variables de entorno obligatorias (Yahoo no requiere key).
+   El build no descarga nada de internet: las fuentes (Plus Jakarta Sans y
+   JetBrains Mono, licencia OFL) vienen de los paquetes `@fontsource-variable`
+   y se cargan con `next/font/local`.
 3. Deploy. Las rutas API corren en el runtime de Node.
 
 ---
@@ -86,11 +89,25 @@ generador sintético (GBM correlacionado) para que el pipeline corra igual.
 |--------|----------------------------------------|-------------|
 | GET    | `/api/quote?symbols=NVDA,MSFT&range=1d&interval=5m` | Cotizaciones en vivo (máx. 20 símbolos) |
 | GET    | `/api/forecast`                        | Ensamble + Monte Carlo de las 3 carteras |
+| GET    | `/api/indicators`                      | Indicadores clave: mercados y riesgo, Colombia, energía y acero, portafolio (alimenta la cinta superior y el panel del Dashboard) |
 | GET    | `/api/commodities`                     | Petróleo, gas, acero HRC, mineral de hierro y acciones del sector (diario) + carbón, mineral, Brent, gas Europa e IPP del acero (mensual) |
 | GET    | `/api/gdp`                             | PIB de Colombia frente a EE.UU., China, UE, Japón, Alemania, India, Reino Unido, Rusia, Brasil y México |
 | GET    | `/api/steel`                           | Comercio exterior de Colombia por partida arancelaria + mercado siderúrgico curado |
 
 ---
+
+## Diseño: portal de datos
+
+La interfaz sigue las convenciones de un portal financiero: barra superior a
+todo el ancho, cinta de cotizaciones en todas las páginas y tablas densas
+(`components/QuoteTable.tsx`) con último precio, variación absoluta y
+porcentual, variación a un mes, rango de 52 semanas y tendencia. Las
+variaciones llevan signo y flecha además del color.
+
+El **panel de indicadores clave** (`components/KeyIndicators.tsx`, en el
+Dashboard) agrupa 18 series en cuatro pestañas: Mercados, Colombia, Energía y
+acero, y Portafolio. Para cambiar qué se muestra, edita `DEFS` en
+`app/api/indicators/route.ts`.
 
 ## Módulo Macro: commodities y PIB
 
@@ -107,6 +124,46 @@ del FMI y, como señal diaria, acciones de carbón térmico (BTU) y metalúrgico
 `fetchDailyQuote` (en `lib/providers/yahoo.ts`) compara la antigüedad del precio
 de mercado con la de la serie de cierres: en futuros poco líquidos como `TIO=F`
 Yahoo deja en `meta` un precio de hace años, y se usa el último cierre.
+
+## Proveedores de datos y orden de consulta
+
+| Dato | Fuente principal | Respaldo | Frecuencia |
+|---|---|---|---|
+| Cotizaciones, índices, divisas, futuros | Yahoo Finance (sin key) | FMP, si `FMP_API_KEY` es válida | Intradía |
+| Noticias por canal | Yahoo Finance (búsqueda) | FMP | Minutos |
+| TRM oficial | datos.gov.co, conjunto `32sa-8pi3` (Superfinanciera) | — | Diaria |
+| Carbón, mineral de hierro, gas, Brent (referencias) | FRED (FMI / BLS) | — | Mensual |
+| PIB de Colombia y potencias | Banco Mundial | — | Anual |
+| Comercio exterior por partida | UN Comtrade | instantánea en `data/steel_market.json` | Anual |
+| Coque y carbón FOB Colombia, precios base | Boletín UPME-ANM y resoluciones UPME (a mano) | — | Mensual / trimestral |
+
+Tres reglas que salieron de fallas reales en producción (27-nov-2026):
+
+- **Yahoo va primero.** FMP retiró los endpoints `/api/v3` para cuentas
+  posteriores a agosto de 2025 (responde HTTP 403). Con la key presente, el
+  código anterior consultaba solo FMP y dejaba vacías las cotizaciones, la
+  página Macro y las noticias. Ahora FMP solo cubre lo que Yahoo no entregue.
+- **Consultas cortas en noticias.** La búsqueda de Yahoo devuelve cero
+  resultados con consultas de varias palabras; cada canal lanza varias
+  consultas de un ticker o una palabra y se unen (`fetchNewsMulti`).
+- **Sin caché de datos de Next para Yahoo.** Con `next: { revalidate }`, la
+  primera visita tras horas sin tráfico recibía precios de días atrás. La
+  caché la pone el CDN con `Cache-Control`, que sí tiene tope de antigüedad.
+
+El pronóstico ensamblado de los tres portafolios (`/api/forecast`) se calcula en
+cada consulta con los cierres del último año. Los pesos de cada portafolio
+siguen saliendo de `data/forecast_results.json`; ese archivo solo se sirve
+completo, con aviso en pantalla, si Yahoo no entrega algún activo.
+
+## Tema y unidades
+
+- Tema claro por defecto y oscuro con el interruptor de la barra superior
+  (`data-theme="dark"` en `<html>`, guardado en `localStorage`). Todos los
+  colores son variables CSS de `app/globals.css`; las gráficas las leen desde
+  `lib/chart-theme.ts`. La paleta de series está validada para cada fondo.
+- Toda cifra lleva su unidad: columna «Unidad» en las tablas de cotizaciones,
+  unidad en el encabezado de cada columna y leyenda de abreviaturas en
+  Siderurgia (USD, COP, t, kt, Mt, CIF, FOB).
 
 ## Módulo Siderurgia (micro)
 
@@ -135,6 +192,14 @@ Dos capas de datos:
   producción nacional de acero, coque o gases industriales: **este archivo se
   actualiza a mano** cuando Camacero, ANDI, Fenalcarbón, DANE o la UPME
   publican cifras nuevas. El campo `asOf` es la fecha de corte que ve el usuario.
+- **Precios de coque, carbón y minerales:** no hay futuros públicos diarios de
+  coque, carbón coquizable ni chatarra, así que la página combina tres
+  referencias: precio FOB mensual de Colombia (boletín *Minería en cifras* de
+  UPME-ANM), precios base de la UPME para regalías (COP/t, por resolución) y el
+  valor unitario del comercio exterior (USD/t = valor / peso de Comtrade,
+  calculado en `/api/steel`). Las dos primeras viven en `prices` dentro de
+  `data/steel_market.json` y se actualizan a mano: el boletín sale cada mes y
+  las resoluciones de carbón y minerales metálicos, cada trimestre.
 
 ---
 

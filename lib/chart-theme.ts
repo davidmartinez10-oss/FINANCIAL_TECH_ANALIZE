@@ -1,33 +1,38 @@
-// Tema común de gráficas (Recharts) sobre la superficie oscura de la app.
-// Paleta categórica en orden fijo, validada contra la superficie #14161c
-// (banda de luminosidad, separación para daltonismo y contraste ≥ 3:1).
+// Tema común de gráficas (Recharts). Los colores son variables CSS definidas
+// en app/globals.css, con un valor para el tema claro y otro para el oscuro,
+// de modo que las gráficas cambian con el interruptor sin volver a renderizar.
+//
+// Paleta categórica en orden fijo, validada en cada superficie (banda de
+// luminosidad, separación para daltonismo y contraste ≥ 3:1).
 // El color sigue a la entidad: no se reasigna al filtrar series.
 
 export const SERIES = {
-  blue: "#338ced",
-  orange: "#e76624",
-  aqua: "#00a888",
-  yellow: "#d28e05",
-  magenta: "#e24d8b",
-  green: "#0aac23",
-  violet: "#9887ef",
-  red: "#eb6263",
+  blue: "var(--s-blue)",
+  orange: "var(--s-orange)",
+  aqua: "var(--s-aqua)",
+  yellow: "var(--s-yellow)",
+  magenta: "var(--s-magenta)",
+  green: "var(--s-green)",
+  violet: "var(--s-violet)",
+  red: "var(--s-red)",
 } as const;
 
 export const INK = {
-  primary: "#f0f2f6",
-  secondary: "#9aa1b2",
-  grid: "rgba(255,255,255,0.06)",
-  axis: "rgba(255,255,255,0.18)",
+  primary: "var(--chart-ink)",
+  secondary: "var(--chart-ink-2)",
+  grid: "var(--chart-grid)",
+  axis: "var(--chart-axis)",
+  surface: "var(--panel-solid)",
+  cursor: "var(--chart-cursor)",
 };
 
 export const AXIS_TICK = { fill: INK.secondary, fontSize: 11 };
 
 export const TOOLTIP_STYLE = {
-  background: "#14161c",
-  border: "1px solid rgba(255,255,255,0.14)",
+  background: "var(--panel-solid)",
+  border: "1px solid var(--hairline-strong)",
   borderRadius: 10,
   fontSize: 12,
   color: INK.primary,
-  boxShadow: "0 8px 28px -8px rgba(4,8,20,0.7)",
+  boxShadow: "var(--shadow-md)",
 };
