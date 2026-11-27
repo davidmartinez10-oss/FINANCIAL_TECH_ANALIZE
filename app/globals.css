@@ -2799,3 +2799,103 @@ section {
   color: var(--muted);
   max-width: 110ch;
 }
+
+/* Boletín siderúrgico */
+.bl-kicker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.bl-headline {
+  margin: 12px 0 0;
+  max-width: 78ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.bl-editions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 22px;
+}
+.bl-points {
+  margin: 0;
+  padding: 18px 22px 18px 42px;
+  display: grid;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text);
+}
+.bl-points li::marker {
+  color: var(--accent);
+  font-weight: 700;
+}
+.bl-table-wrap {
+  padding: 6px 12px 10px;
+  overflow-x: auto;
+}
+.bl-table-wrap td {
+  vertical-align: top;
+  line-height: 1.5;
+}
+.bl-val {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.bl-unit {
+  white-space: normal;
+  min-width: 13ch;
+}
+.bl-when {
+  white-space: nowrap;
+  color: var(--text-dim);
+}
+.bl-prose {
+  padding: 20px 24px;
+}
+.bl-prose p {
+  margin: 0 0 14px;
+  max-width: 82ch;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+}
+.bl-prose p:last-child {
+  margin-bottom: 0;
+}
+.bl-notes,
+.bl-sources {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-width: 100ch;
+}
+.bl-sources a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.bl-sources a:hover {
+  text-decoration: underline;
+}
+.bl-sources span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+.bl-foot {
+  margin: 18px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.bl-foot a {
+  color: var(--accent);
+}

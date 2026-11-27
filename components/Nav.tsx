@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/company", label: "Compañías" },
   { href: "/macro", label: "Macro y PIB" },
   { href: "/siderurgia", label: "Siderurgia" },
+  { href: "/boletin", label: "Boletín" },
   { href: "/news", label: "Noticias" },
   { href: "/assistant", label: "Asistente IA" },
 ];

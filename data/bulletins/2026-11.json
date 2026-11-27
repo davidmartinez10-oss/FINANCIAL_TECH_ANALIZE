@@ -1,0 +1,322 @@
+{
+  "id": "2026-11",
+  "number": 1,
+  "title": "Boletín siderúrgico · noviembre de 2026",
+  "published": "2026-11-27",
+  "cutoff": "2026-11-27",
+  "headline": "El peso perdió 15 % frente al dólar en un mes y el coque colombiano subió 24 %: la presión de costos pasó de la energía a la tasa de cambio y al carbón metalúrgico.",
+  "keyPoints": [
+    "La TRM oficial está en 3.630,89 COP por USD, 15,0 % más que hace un mes. Todo insumo que se paga en dólares (ferroaleaciones, electrodos, refractarios, repuestos) se encareció en esa proporción.",
+    "El coque colombiano promedió 243,17 USD por tonelada FOB en septiembre, 24,3 % más que en agosto. El carbón metalúrgico cedió a 196,76 USD por tonelada en octubre (−3,8 %).",
+    "El Brent bajó a 90,31 USD por barril, 21,7 % menos que hace un mes. En pesos la caída es de cerca de 10 %, porque la devaluación absorbió la mitad del alivio (cálculo propio).",
+    "El acero laminado en caliente en EE. UU. cotiza a 1.433 USD por tonelada corta, pegado a su máximo de 52 semanas, mientras China mantiene exportaciones de 95,5 millones de toneladas en diez meses.",
+    "Colombia importa cerca de 70 % del acero que consume. El arancel de 35 % a países sin acuerdo comercial vence en marzo de 2027 salvo prórroga."
+  ],
+  "indicators": [
+    {
+      "label": "TRM oficial",
+      "value": "3.630,89",
+      "unit": "COP por USD",
+      "change": "+15,0 % en un mes",
+      "period": "vigente 26–27 nov 2026",
+      "sourceId": "trm"
+    },
+    {
+      "label": "Coque · FOB Colombia",
+      "value": "243,17",
+      "unit": "USD por tonelada",
+      "change": "+24,3 % frente a agosto",
+      "period": "septiembre de 2026",
+      "sourceId": "upme-boletin-34"
+    },
+    {
+      "label": "Carbón metalúrgico · FOB Colombia",
+      "value": "196,76",
+      "unit": "USD por tonelada",
+      "change": "−3,8 % frente a septiembre",
+      "period": "octubre de 2026",
+      "sourceId": "upme-boletin-34"
+    },
+    {
+      "label": "Carbón térmico · FOB Colombia",
+      "value": "126,76",
+      "unit": "USD por tonelada",
+      "change": "+11,3 % frente a septiembre",
+      "period": "octubre de 2026",
+      "sourceId": "upme-boletin-34"
+    },
+    {
+      "label": "Carbón metalúrgico · precio base, consumo interno",
+      "value": "330.066,86",
+      "unit": "COP por tonelada",
+      "change": "+14,0 % frente al III trimestre",
+      "period": "IV trimestre de 2026",
+      "sourceId": "upme-res-708"
+    },
+    {
+      "label": "Mineral de hierro · precio base",
+      "value": "63.980,52",
+      "unit": "COP por tonelada",
+      "period": "III trimestre de 2026",
+      "sourceId": "upme-res-476"
+    },
+    {
+      "label": "Acero laminado en caliente, EE. UU. (futuro)",
+      "value": "1.433",
+      "unit": "USD por tonelada corta (≈1.580 USD por tonelada métrica)",
+      "change": "+6,6 % en un mes",
+      "period": "27 nov 2026",
+      "sourceId": "plataforma-yahoo"
+    },
+    {
+      "label": "Mineral de hierro 62 % Fe (futuro)",
+      "value": "90,64",
+      "unit": "USD por tonelada",
+      "change": "−0,2 % en un mes",
+      "period": "25 nov 2026",
+      "sourceId": "plataforma-yahoo"
+    },
+    {
+      "label": "Petróleo Brent (futuro)",
+      "value": "90,31",
+      "unit": "USD por barril",
+      "change": "−21,7 % en un mes",
+      "period": "27 nov 2026",
+      "sourceId": "plataforma-yahoo"
+    },
+    {
+      "label": "Carbón térmico, Australia",
+      "value": "153,84",
+      "unit": "USD por tonelada",
+      "change": "+9,5 % frente a agosto",
+      "period": "septiembre de 2026",
+      "sourceId": "fred"
+    },
+    {
+      "label": "Importaciones de hierro y acero (capítulo 72)",
+      "value": "1.815",
+      "unit": "millones de USD CIF",
+      "change": "−7,1 % frente a 2024",
+      "period": "año 2025",
+      "sourceId": "comtrade"
+    },
+    {
+      "label": "Gas importado sobre la oferta total",
+      "value": "44",
+      "unit": "%",
+      "period": "noviembre de 2026",
+      "sourceId": "gas-nov26"
+    }
+  ],
+  "sections": [
+    {
+      "title": "Mercado mundial del acero",
+      "paragraphs": [
+        "La demanda mundial está estancada. La World Steel Association la mantiene en 1.722 millones de toneladas para 2026 y aplaza la recuperación a 2027, con 1.752 millones (+1,7 %). El freno es China, cuya demanda cae 2,0 %; el resto del mundo crece 1,5 %.",
+        "La producción de acero crudo sumó 1.509,3 millones de toneladas entre enero y octubre (−0,8 %). China produjo 795,6 millones (−2,8 %), pero exportó 95,5 millones en los mismos diez meses, apenas 2,3 % menos. A ese ritmo cerraría el año cerca de 115 millones de toneladas exportadas (cálculo propio).",
+        "Los precios están fragmentados por las barreras comerciales. El laminado en caliente en EE. UU. subió 18,9 % en tres meses y toca su máximo de 52 semanas, mientras el excedente chino busca mercados con menos defensa comercial. La OCDE, citada por la ANDI, ve la sobrecapacidad mundial por encima de 700 millones de toneladas al cierre de 2026."
+      ]
+    },
+    {
+      "title": "Mercado colombiano",
+      "paragraphs": [
+        "Colombia produce alrededor de 1,2 millones de toneladas de acero al año y consume unos 3,85 millones: 69,7 % del consumo es importado. Camacero estima que el consumo crece 7,1 % en 2026 y proyecta 4,2 millones de toneladas en 2027 por la reconstrucción tras el sismo, que sumaría unas 577 mil toneladas entre 2027 y 2029, 70 % en productos largos.",
+        "En valor, las importaciones del capítulo 72 fueron de 1.815 millones de USD CIF en 2025, 7,1 % menos que en 2024 y 32 % por debajo de 2021. China, Japón y Vietnam concentran cerca de tres cuartas partes (47,2 %, 19,9 % y 8,1 %). Las exportaciones fueron de 580 millones de USD FOB (−8,0 %).",
+        "La protección es temporal. El Decreto 0264 fijó un arancel de 35 % sobre 14 subpartidas de países sin acuerdo comercial por un año desde marzo de 2026. Los productores piden mantenerlo y reportan un crecimiento cercano a 5 % en su producción de 2026."
+      ]
+    },
+    {
+      "title": "Coque, carbón y minerales",
+      "paragraphs": [
+        "El coque es el insumo que más se movió. Su precio FOB pasó de 195,60 a 243,17 USD por tonelada entre agosto y septiembre, el valor más alto de los cinco meses publicados. Entre enero y septiembre el país exportó 2,96 millones de toneladas por 580 millones de USD, 15,2 % menos en valor; la mitad va a Brasil. Como Colombia exporta coque, el comprador local paga paridad de exportación.",
+        "El carbón metalúrgico promedió 196,76 USD por tonelada FOB en octubre, tras 204,54 en septiembre. El precio base que fija la UPME para regalías subió con rezago: 330.066,86 COP por tonelada para consumo interno en el cuarto trimestre (+14,0 %) y 424.485,74 COP por tonelada para exportación desde el interior del país (+30,4 %).",
+        "El mineral de hierro sigue estable: el futuro de 62 % Fe ronda 90,64 USD por tonelada y el precio base nacional es de 63.980,52 COP por tonelada (tercer trimestre). El carbón térmico va al alza, con 126,76 USD por tonelada FOB Colombia en octubre (+11,3 %) y 153,84 en Australia en septiembre."
+      ]
+    },
+    {
+      "title": "Energía y tasa de cambio",
+      "paragraphs": [
+        "El petróleo dio un respiro: el Brent cotiza a 90,31 USD por barril después de promediar 102 en septiembre. La TRM, en cambio, pasó de unos 3.158 a 3.630,89 COP por USD en un mes. Medido en pesos, el barril bajó cerca de 10 % y no 21,7 % (cálculo propio con ambas series).",
+        "El gas es el frente más débil. El importado ya representa 44 % de la oferta (517 frente a 654 GBTUD de producción nacional en noviembre) y cerca de 16 % de los grandes consumidores industriales cambiaron de energético a inicios de año. Un gas importado se paga en dólares, así que la devaluación de este mes se traslada directo a ese costo."
+      ]
+    }
+  ],
+  "watch": [
+    {
+      "what": "Boletín Minería en cifras No. 35 de la UPME y la ANM",
+      "when": "Diciembre de 2026",
+      "why": "Trae el precio FOB del coque de octubre y los del carbón de noviembre; confirma si el salto del coque se sostiene."
+    },
+    {
+      "what": "Resolución de precios base del carbón para el primer trimestre de 2027",
+      "when": "Finales de diciembre de 2026",
+      "why": "Recoge con rezago los precios FOB de este trimestre y define la base de liquidación de regalías."
+    },
+    {
+      "what": "Producción mundial de acero crudo de noviembre (worldsteel)",
+      "when": "Última semana de diciembre de 2026",
+      "why": "Muestra si China sigue recortando producción sin bajar exportaciones."
+    },
+    {
+      "what": "TRM",
+      "when": "Seguimiento diario",
+      "why": "Subió 15 % en un mes y está a 7 % de su máximo del último año (3.900,82 COP por USD)."
+    },
+    {
+      "what": "Vigencia del Decreto 0264",
+      "when": "Marzo de 2027",
+      "why": "El arancel de 35 % vence salvo prórroga, con las exportaciones chinas todavía altas."
+    }
+  ],
+  "dataNotes": [
+    "El precio del coque de octubre no está publicado: el boletín de la UPME y la ANM lo estima con un mes de rezago a partir del valor y la cantidad exportados.",
+    "En el boletín No. 34, la gráfica marca 193 y el texto 196,76 USD por tonelada para el carbón metalúrgico de octubre. Se usa el texto, que es consistente con la variación que reporta.",
+    "El precio base del mineral de hierro corresponde al tercer trimestre; no se localizaron los valores del cuarto.",
+    "Los precios base de la UPME son valores en boca de mina para liquidar regalías, no precios de mercado puestos en planta.",
+    "Las series del FMI (carbón de Australia, entre otras) llegan hasta septiembre de 2026.",
+    "No se incluyen el precio de bolsa de la energía eléctrica (XM) ni las importaciones mensuales del DANE: no se pudieron consultar de forma automática.",
+    "Este boletín es informativo y no constituye asesoría de inversión."
+  ],
+  "sources": [
+    {
+      "id": "upme-boletin-34",
+      "publisher": "UPME · ANM",
+      "title": "Boletín estadístico Minería en cifras No. 34",
+      "date": "2026-10",
+      "url": "https://docs.upme.gov.co/SIMEC/SIMCO/Cifras-Sectoriales/BoletinMinerales/Boletin_34_mineria_en_cifras_octubre_2026.pdf"
+    },
+    {
+      "id": "upme-res-708",
+      "publisher": "UPME",
+      "title": "Resolución 708 de 2026: precio base del carbón, cuarto trimestre de 2026",
+      "date": "2026-09-29",
+      "url": "https://docs.upme.gov.co/Normatividad/708_2026.pdf"
+    },
+    {
+      "id": "upme-res-476",
+      "publisher": "UPME",
+      "title": "Resolución 476 de 2026: precios base de mineral de hierro y minerales metálicos, tercer trimestre de 2026 (soporte técnico)",
+      "date": "2026-06-30",
+      "url": "https://docs.upme.gov.co/Normatividad/Soporte_tecnico_Metalicos_2doTrim2026_Cir476_2026.pdf"
+    },
+    {
+      "id": "worldsteel-sro",
+      "publisher": "World Steel Association",
+      "title": "worldsteel Short Range Outlook October 2026",
+      "date": "2026-10-12",
+      "url": "https://worldsteel.org/media/press-releases/2026/worldsteel-short-range-outlook-october-2026/"
+    },
+    {
+      "id": "smm-sro",
+      "publisher": "Shanghai Metals Market",
+      "title": "worldsteel: Global steel demand flat at 1,722 Mt in 2026, up 1.7% in 2027",
+      "date": "2026-10",
+      "url": "https://news.metal.com/newscontent/104171736-worldsteel-global-steel-demand-flat-at-1722-mt-in-2026-up-17-in-2027"
+    },
+    {
+      "id": "worldsteel-prod",
+      "publisher": "Investing.com (worldsteel)",
+      "title": "Global crude steel output falls 1.1% in October",
+      "date": "2026-11-24",
+      "url": "https://www.investing.com/news/commodities-news/global-crude-steel-output-falls-11-in-october-93CH-5047435"
+    },
+    {
+      "id": "china-exports",
+      "publisher": "GMK Center (aduanas de China)",
+      "title": "China cut steel exports by 2.3% y/y in 10 months",
+      "date": "2026-11",
+      "url": "https://gmk.center/en/news/china-cut-steel-exports-by-2-3-y-y-in-10-months/"
+    },
+    {
+      "id": "andi-ocde",
+      "publisher": "PymeNoticias (ANDI · OCDE)",
+      "title": "Acero asiático en Colombia: ANDI pide defensa comercial",
+      "date": "2026-11",
+      "url": "https://www.pymenoticias.com/post/acero-asiatico-colombia-andi-defensa-comercial"
+    },
+    {
+      "id": "camacero-oct26",
+      "publisher": "La República (Camacero)",
+      "title": "Reconstrucción por el sismo llevaría consumo de acero a 4,2 millones de toneladas en 2027",
+      "date": "2026-10-26",
+      "url": "https://www.larepublica.co/economia/reconstruccion-por-el-sismo-llevaria-consumo-de-acero-a-4-2-millones-de-toneladas-en-2027-4511294"
+    },
+    {
+      "id": "camacero-mar26",
+      "publisher": "La República (Camacero)",
+      "title": "Camacero prevé un crecimiento de la industria de acero de entre 2% y 3% en 2026",
+      "date": "2026-03-11",
+      "url": "https://amp.larepublica.co/economia/camacero-preve-un-crecimiento-de-la-industria-de-acero-de-entre-2-y-3-en-2026-4347059"
+    },
+    {
+      "id": "decreto-0264",
+      "publisher": "Portafolio",
+      "title": "Gobierno colombiano fija arancel del 35% al acero y el metal de países sin acuerdo comercial",
+      "date": "2026-03-17",
+      "url": "https://www.portafolio.co/negocios/comercio/gobierno-colombiano-fija-arancel-del-35-al-acero-y-el-metal-de-paises-sin-acuerdo-comercial-como-china-y-rusia-490219"
+    },
+    {
+      "id": "valora-nov26",
+      "publisher": "Valora Analitik",
+      "title": "Productores de acero piden arancel del 35 % para enfrentar la competencia de China",
+      "date": "2026-11-10",
+      "url": "https://www.valoraanalitik.com/productores-de-acero-piden-arancel-del-35-para-enfrentar-la-competencia-de-china/"
+    },
+    {
+      "id": "gas-sep26",
+      "publisher": "El Colombiano",
+      "title": "El 40% del gas que consumen los colombianos ya es importado",
+      "date": "2026-10",
+      "url": "https://www.elcolombiano.com/negocios/colombia-aumenta-importaciones-gas-deficit-FN42297156"
+    },
+    {
+      "id": "gas-nov26",
+      "publisher": "Valora Analitik",
+      "title": "Gas importado rompe el techo de las proyecciones y ya representa 44 % de la oferta local",
+      "date": "2026-11",
+      "url": "https://www.valoraanalitik.com/?p=623292"
+    },
+    {
+      "id": "gas-moodys",
+      "publisher": "Valora Analitik",
+      "title": "Déficit de gas en Colombia podría llegar hasta 39 % de la demanda en 2026",
+      "date": "2026-06",
+      "url": "https://www.valoraanalitik.com/deficit-de-gas-en-colombia-podria-llegar-hasta-39-de-la-demanda-en-2026/"
+    },
+    {
+      "id": "fenalcarbon-25",
+      "publisher": "El Colombiano (Fenalcarbón)",
+      "title": "Producción de carbón en Colombia cae a su nivel más bajo en dos décadas",
+      "date": "2026-05",
+      "url": "https://www.elcolombiano.com/negocios/colombia-produccion-carbon-minimo-20-anos-caida-2025-mercado-global-FA36146641"
+    },
+    {
+      "id": "comtrade",
+      "publisher": "Naciones Unidas",
+      "title": "UN Comtrade · comercio de Colombia por partida arancelaria",
+      "date": "consulta en vivo",
+      "url": "https://comtradeplus.un.org/"
+    },
+    {
+      "id": "fred",
+      "publisher": "FRED · Federal Reserve Bank of St. Louis",
+      "title": "Precios de commodities del FMI e IPP del BLS",
+      "date": "consulta en vivo",
+      "url": "https://fred.stlouisfed.org/"
+    },
+    {
+      "id": "plataforma-yahoo",
+      "publisher": "Yahoo Finance (panel de la plataforma)",
+      "title": "Futuros y cotizaciones: Brent, acero HRC, mineral de hierro",
+      "date": "2026-11-27",
+      "url": "https://finance.yahoo.com/"
+    },
+    {
+      "id": "trm",
+      "publisher": "Superintendencia Financiera · datos.gov.co",
+      "title": "Tasa de cambio representativa del mercado (TRM)",
+      "date": "2026-11-27",
+      "url": "https://www.datos.gov.co/Econom-a-y-Finanzas/Tasa-de-Cambio-Representativa-del-Mercado-TRM/32sa-8pi3"
+    }
+  ]
+}
